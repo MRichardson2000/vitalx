@@ -1,0 +1,16 @@
+#
+__pycache__/
+.env
+.ruff_cache/
+.pytest_cache/
+.DS_Store
+*.pyc
+
+#venv
+*.venv
+
+#ruff_cache
+*.ruff_cache
+
+#env
+*.env
