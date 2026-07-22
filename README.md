@@ -84,8 +84,7 @@ but alltogether - systemctl --user daemon-reload && systemctl --user restart vit
 
 I'm terrified of house fires (No idea why) so it's not on a raspberry pi but I am going to look into a Hetzner Linux VM and run all my web app stuff from a VM instead. For now my work around is auto run solutions
 
-
-
+- feature flags - look into
 
 
 

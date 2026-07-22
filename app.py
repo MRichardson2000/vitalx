@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+
 sys.path.append(str(Path(__file__).parent / "src"))
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output, State
@@ -11,7 +12,7 @@ from src.vitalx.service import (
     get_total_steps,
     get_total_sleep_time,
     get_latest_streak,
-    update_streak_call_point
+    update_streak_call_point,
 )
 
 app = Dash(__name__, prevent_initial_callbacks=False)
@@ -100,7 +101,7 @@ def create_layout():
     )
 
 
-@app.callback( # type: ignore[misc]
+@app.callback(  # type: ignore[misc]
     Output("walk_input_section", "style"),
     Output("sleep_input_section", "style"),
     Output("walk_totals_section", "style"),
@@ -134,7 +135,7 @@ def toggle_sections(mode: str | None):
     )
 
 
-@app.callback(# type: ignore[misc]
+@app.callback(  # type: ignore[misc]
     Output("total_steps_output", "children"),
     Input("entry_mode", "value"),
 )
@@ -144,7 +145,7 @@ def update_total_steps(mode: str | None):
     return ""
 
 
-@app.callback(# type: ignore[misc]
+@app.callback(  # type: ignore[misc]
     Output("streak_output", "children"),
     Input("entry_mode", "value"),
     Input("submit_walk", "n_clicks"),
@@ -156,7 +157,7 @@ def update_streak(mode: str | None, _):
     return ""
 
 
-@app.callback(# type: ignore[misc]
+@app.callback(  # type: ignore[misc]
     Output("total_sleep_output", "children"),
     Input("entry_mode", "value"),
 )
@@ -167,7 +168,7 @@ def update_total_sleep(mode: str | None):
     return ""
 
 
-@app.callback(# type: ignore[misc]
+@app.callback(  # type: ignore[misc]
     Output("walk_output", "children"),
     Input("submit_walk", "n_clicks"),
     State("walk_location", "value"),
@@ -187,7 +188,7 @@ def submit_walk(n: int, location: str, steps: int, calories: int):
     return "Walk entry saved!"
 
 
-@app.callback(# type: ignore[misc]
+@app.callback(  # type: ignore[misc]
     Output("sleep_output", "children"),
     Input("submit_sleep", "n_clicks"),
     State("sleep_hours", "value"),
@@ -209,7 +210,7 @@ app.layout = create_layout()
 
 
 def main():
-    app.run(debug=True)# type: ignore[misc]
+    app.run(debug=True)  # type: ignore[misc]
 
 
 if __name__ == "__main__":
