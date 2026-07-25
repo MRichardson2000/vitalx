@@ -13,6 +13,8 @@ from src.vitalx.service import (
     get_total_sleep_time,
     get_latest_streak,
     update_streak_call_point,
+    validate_streak,
+    reset_streak
 )
 
 app = Dash(__name__, prevent_initial_callbacks=False)
@@ -183,8 +185,12 @@ def submit_walk(n: int, location: str, steps: int, calories: int):
         calories_burnt=int(calories),
         walk_location=location,
     )
+    valid = validate_streak(walk.steps_walked)
+    if valid:
+        update_streak_call_point()
+    else:
+        reset_streak()
     insert_walk(walk)
-    update_streak_call_point()
     return "Walk entry saved!"
 
 
