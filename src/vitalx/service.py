@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from vitalx.utils import ANALYTICS_DBO
 from vitalx.logger import get_logger
+from vitalx.exceptions import ValidationError, DatabaseError
 
 
 logger = get_logger(__name__)
@@ -27,8 +28,8 @@ def insert_walk(walk: VitalXWalk) -> None:
         "todays_date": walk.todays_date,
     }
     try:
-        logger.debug("Walk inserted into the database successfully")
         execute_query(sql, params)
+        logger.debug("Walk inserted into the database successfully")
     except Exception as e:
         logger.error("Failed to insert walk into the database: %s", e, exc_info=True)
         raise RuntimeError(f"Failed to insert walk due to: {e}")
@@ -51,8 +52,8 @@ def insert_sleep(sleep: VitalXSleep) -> None:
         "todays_date": sleep.todays_date,
     }
     try:
-        logger.debug("Sleep inserted into the database successfully")
         execute_query(sql, params)
+        logger.debug("Sleep inserted into the database successfully")
     except Exception as e:
         logger.error("Failed to insert sleep into the database: %s", e, exc_info=True)
         raise RuntimeError(f"Failed to insert sleep due to: {e}")
@@ -140,8 +141,8 @@ def reset_streak(
 ) -> None:
     params: dict[str, Any] = {"streak": streak, "todays_date": todays_date()}
     try:
-        logger.debug("Streak reset successfully")
         execute_query(query, params)
+        logger.debug("Streak reset successfully")
     except Exception as e:
         logger.error("Failed to reset streak due to: %s", e, exc_info=True)
         raise RuntimeError(f"Failed to insert new streak due to: {e}")
@@ -155,8 +156,8 @@ def save_new_streak(
     streak = calculate_streak_fn()
     params: dict[str, Any] = {"streak": streak, "todays_date": todays_date()}
     try:
-        logger.debug("Updated Streak has been entered into the database successfully")
         execute_query(query, params)
+        logger.debug("Updated Streak has been entered into the database successfully")
     except Exception as e:
         logger.error(
             "Failed to save updated streak in the database: %s", e, exc_info=True
