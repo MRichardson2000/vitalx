@@ -121,6 +121,22 @@ def calculate_new_streak(
     return get_current_streak_fn() + 1
 
 
+def validate_streak(steps_walked: int, required_steps: int = 7000) -> bool:
+    return steps_walked >= required_steps
+
+
+def reset_streak(
+    query: str = "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
+    streak: int = 1,
+    todays_date: Callable[[], datetime] = datetime.now,
+    ) -> None:
+    params: dict[str, Any] = {"streak": streak, "todays_date": todays_date()}
+    try:
+        execute_query(query, params)
+    except Exception as e:
+        raise RuntimeError(f"Failed to insert new streak due to: {e}")
+
+
 def save_new_streak(
     query: str = "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
     get_current_streak_fn: Callable[[], int] = get_current_streak,
@@ -150,8 +166,6 @@ def update_streak_call_point(
     last_walk_date_fn: Callable[[list[dict[str, Any]]], datetime] = get_last_walk_date,
     save_new_streak_fn: Callable[[], None] = lambda: save_new_streak(),
     todays_date_fn: Callable[[], datetime] = datetime.now,
-    query: str = "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
-    default_streak_value: int = 1,
 ) -> None:
     walk_history = walk_history_fn()
     walked_today = walked_today_fn(walk_history)
@@ -159,14 +173,7 @@ def update_streak_call_point(
     today = todays_date_fn().date()
     yesterday = today - timedelta(days=1)
     if not walked_today and last_walk_date == yesterday:
-        params: dict[str, Any] = {
-            "streak": default_streak_value,
-            "todays_date": todays_date_fn(),
-        }
-        try:
-            execute_query(query, params)
-        except Exception as e:
-            raise ValueError(f"Failed to insert new streak due to: {e}")
+        reset_streak()
     save_new_streak_fn()
 
 
