@@ -1,5 +1,5 @@
-from vitalx.service import insert_walk  # type: ignore
-from vitalx.vitalx import VitalXWalk  # type: ignore
+from vitalx.service import insert_walk
+from vitalx.vitalx import VitalXWalk
 from datetime import datetime
 
 
