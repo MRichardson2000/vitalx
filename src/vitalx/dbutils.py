@@ -4,8 +4,10 @@ import os
 import sqlalchemy as sa
 from typing import Any
 from .utils import CREATES_DBO
+from vitalx.logger import get_logger
 
 
+logger = get_logger(__name__)
 load_dotenv()
 
 
@@ -24,10 +26,12 @@ def fetch_result(
     """If the Query executed returns a value then this returns it as a dictionary"""
     engine = get_engine()
     try:
+        logger.debug("Successfully fetched results from the database")
         with engine.begin() as conn:
             result = conn.execute(sa.text(query), params or {})
             return [dict(r) for r in result.mappings()]
     except Exception as e:
+        logger.error("Failed to fetch results from the database: %s", e, exc_info=True)
         raise ValueError(f"Failed to fetch results due to: {e}")
 
 
@@ -35,9 +39,11 @@ def execute_query(query: str, params: dict[str, Any] | None = None) -> None:
     """If you're only executing a query but not expecting a result back the you can run this and it won't return anything"""
     engine = get_engine()
     try:
+        logger.debug("Successfully executed query against the database")
         with engine.begin() as conn:
             conn.execute(sa.text(query), params or {})
     except Exception as e:
+        logger.error("Failed to execute query: %s", e, exc_info=True)
         raise RuntimeError(f"Failed to execute query due to: {e}")
 
 

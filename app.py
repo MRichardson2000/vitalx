@@ -16,7 +16,10 @@ from src.vitalx.service import (
     validate_streak,
     reset_streak,
 )
+from vitalx.logger import setup_logging, get_logger
 
+setup_logging()
+logger = get_logger(__name__)
 app = Dash(__name__, prevent_initial_callbacks=False)
 server = app.server
 
@@ -112,6 +115,8 @@ def create_layout():
     Input("entry_mode", "value"),
 )
 def toggle_sections(mode: str | None):
+    if mode:
+        logger.debug("User Switched entry mode to: %s", mode)
     if mode == "walk":
         return (
             {"display": "block"},
@@ -180,6 +185,7 @@ def update_total_sleep(mode: str | None):
 )
 def submit_walk(n: int, location: str, steps: int, calories: int):
     """n is required for dash."""
+    logger.info("Submission received for walk entry")
     walk = VitalXWalk(
         steps_walked=int(steps),
         calories_burnt=int(calories),
@@ -187,11 +193,20 @@ def submit_walk(n: int, location: str, steps: int, calories: int):
     )
     valid = validate_streak(walk.steps_walked)
     if valid:
+        logger.info("Walk passed the streak validation threshold (%d steps).", steps)
         update_streak_call_point()
     else:
+        logger.warning(
+            "Walk failed streak validation (%d steps). Triggering reset.", steps
+        )
         reset_streak()
-    insert_walk(walk)
-    return "Walk entry saved!"
+    try:
+        insert_walk(walk)
+        logger.info("Walk entry saved successfully for location: %s", location)
+        return "Walk entry saved!"
+    except Exception as e:
+        logger.error("Failed to submit walk due to: %s", e)
+        return "Failed to submit walk entry"
 
 
 @app.callback(  # type: ignore[misc]
@@ -203,19 +218,30 @@ def submit_walk(n: int, location: str, steps: int, calories: int):
     prevent_initial_call=True,
 )
 def submit_sleep(n: int, hours: int, minutes: int, quality: str):
+    logger.info("Submission received for sleep entry.")
     sleep = VitalXSleep(
         hours_slept=int(hours),
         minutes_slept=int(minutes),
         good_sleep=bool(quality),
     )
-    insert_sleep(sleep)
-    return "Sleep entry saved!"
+    try:
+        insert_sleep(sleep)
+        logger.info(
+            "Sleep entry saved successfully: %dh %dm",
+            sleep.hours_slept,
+            sleep.minutes_slept,
+        )
+        return "Sleep entry saved!"
+    except Exception as e:
+        logger.error("Failed to submit sleep entry: %s", e, exc_info=True)
+        return "Failed to save sleep entry"
 
 
 app.layout = create_layout()
 
 
 def main():
+    logger.info("Initialising VitalX Dash Application Server on localhost:8050")
     app.run(debug=True)  # type: ignore[misc]
 
 
