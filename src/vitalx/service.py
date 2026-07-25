@@ -139,10 +139,10 @@ def reset_streak(
 
 def save_new_streak(
     query: str = "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
-    get_current_streak_fn: Callable[[], int] = get_current_streak,
     todays_date: Callable[[], datetime] = datetime.now,
+    calculate_streak_fn: Callable[[], int] = calculate_new_streak
 ) -> None:
-    streak = calculate_new_streak(get_current_streak_fn)
+    streak = calculate_streak_fn()
     params: dict[str, Any] = {"streak": streak, "todays_date": todays_date()}
     try:
         execute_query(query, params)
@@ -165,6 +165,7 @@ def update_streak_call_point(
     walked_today_fn: Callable[[list[dict[str, Any]]], bool] = did_walk_today,
     last_walk_date_fn: Callable[[list[dict[str, Any]]], datetime] = get_last_walk_date,
     save_new_streak_fn: Callable[[], None] = lambda: save_new_streak(),
+    reset_streak_fn: Callable[[], None] = lambda: reset_streak(),
     todays_date_fn: Callable[[], datetime] = datetime.now,
 ) -> None:
     walk_history = walk_history_fn()
@@ -173,7 +174,7 @@ def update_streak_call_point(
     today = todays_date_fn().date()
     yesterday = today - timedelta(days=1)
     if not walked_today and last_walk_date == yesterday:
-        reset_streak()
+        reset_streak_fn()
     save_new_streak_fn()
 
 
