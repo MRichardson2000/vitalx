@@ -5,6 +5,7 @@ import sqlalchemy as sa
 from typing import Any
 from .utils import CREATES_DBO
 from vitalx.logger import get_logger
+from vitalx.exceptions import DatabaseError
 
 
 logger = get_logger(__name__)
@@ -32,7 +33,7 @@ def fetch_result(
             return [dict(r) for r in result.mappings()]
     except Exception as e:
         logger.error("Failed to fetch results from the database: %s", e, exc_info=True)
-        raise ValueError(f"Failed to fetch results due to: {e}")
+        raise DatabaseError(f"Failed to fetch results due to: {e}")
 
 
 def execute_query(query: str, params: dict[str, Any] | None = None) -> None:
@@ -44,7 +45,7 @@ def execute_query(query: str, params: dict[str, Any] | None = None) -> None:
             logger.debug("Successfully executed query against the database")
     except Exception as e:
         logger.error("Failed to execute query: %s", e, exc_info=True)
-        raise RuntimeError(f"Failed to execute query due to: {e}")
+        raise DatabaseError(f"Failed to execute query due to: {e}")
 
 
 def load_sql_as_text(path: Path, file_name: str) -> str:
