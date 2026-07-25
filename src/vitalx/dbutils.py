@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 import sqlalchemy as sa
 from typing import Any
-from vitalx.utils import CREATES_DBO
+from .utils import CREATES_DBO
 
 
 load_dotenv()

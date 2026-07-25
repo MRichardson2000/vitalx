@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-
 sys.path.append(str(Path(__file__).parent / "src"))
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output, State

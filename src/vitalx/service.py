@@ -1,9 +1,9 @@
 from .dbutils import execute_query, load_sql_as_text, fetch_result
-from .vitalx import VitalXWalk, VitalXSleep
+from vitalx.vitalx import VitalXWalk, VitalXSleep  # type: ignore
 from typing import Any, Callable
 from pathlib import Path
 from datetime import datetime, timedelta
-from src.vitalx.utils import ANALYTICS_DBO
+from vitalx.utils import ANALYTICS_DBO  # type: ignore
 
 
 def insert_walk(walk: VitalXWalk) -> None:
@@ -129,7 +129,7 @@ def reset_streak(
     query: str = "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
     streak: int = 1,
     todays_date: Callable[[], datetime] = datetime.now,
-    ) -> None:
+) -> None:
     params: dict[str, Any] = {"streak": streak, "todays_date": todays_date()}
     try:
         execute_query(query, params)
@@ -140,7 +140,7 @@ def reset_streak(
 def save_new_streak(
     query: str = "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
     todays_date: Callable[[], datetime] = datetime.now,
-    calculate_streak_fn: Callable[[], int] = calculate_new_streak
+    calculate_streak_fn: Callable[[], int] = calculate_new_streak,
 ) -> None:
     streak = calculate_streak_fn()
     params: dict[str, Any] = {"streak": streak, "todays_date": todays_date()}
