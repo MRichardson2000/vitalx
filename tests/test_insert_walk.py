@@ -19,6 +19,9 @@ def test_insert_walk(monkeypatch):  # type: ignore
     monkeypatch.setattr("vitalx.service.execute_query", fake_execute_query)  # type: ignore
     insert_walk(walk)
     assert "insert into vitalx_walk" in captured["sql"]
+    assert isinstance(captured["params"]["steps_walked"], int)
+    assert isinstance(captured["params"]["calories_burnt"], int)
+    assert isinstance(captured["params"]["walk_location"], str)
     assert captured["params"]["steps_walked"] == 7100
     assert captured["params"]["calories_burnt"] == 300
     assert captured["params"]["walk_location"] == "test_location"
