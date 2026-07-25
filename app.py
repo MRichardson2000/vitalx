@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+
 sys.path.append(str(Path(__file__).parent / "src"))
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output, State
@@ -13,7 +14,7 @@ from src.vitalx.service import (
     get_latest_streak,
     update_streak_call_point,
     validate_streak,
-    reset_streak
+    reset_streak,
 )
 
 app = Dash(__name__, prevent_initial_callbacks=False)

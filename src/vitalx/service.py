@@ -1,9 +1,9 @@
 from .dbutils import execute_query, load_sql_as_text, fetch_result
-from vitalx.vitalx import VitalXWalk, VitalXSleep  # type: ignore
+from vitalx.vitalx import VitalXWalk, VitalXSleep
 from typing import Any, Callable
 from pathlib import Path
 from datetime import datetime, timedelta
-from vitalx.utils import ANALYTICS_DBO  # type: ignore
+from vitalx.utils import ANALYTICS_DBO
 
 
 def insert_walk(walk: VitalXWalk) -> None:
