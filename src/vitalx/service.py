@@ -1,17 +1,19 @@
 from .dbutils import execute_query, load_sql_as_text, fetch_result
 from vitalx.vitalx import VitalXWalk, VitalXSleep
+from vitalx.validation import validate_walk
+from vitalx.exceptions import DatabaseError
 from typing import Any, Callable
 from pathlib import Path
 from datetime import datetime, timedelta
 from vitalx.utils import ANALYTICS_DBO
 from vitalx.logger import get_logger
-from vitalx.exceptions import ValidationError, DatabaseError
 
 
 logger = get_logger(__name__)
 
 
 def insert_walk(walk: VitalXWalk) -> None:
+    validate_walk(walk)
     sql = """
             insert into vitalx_walk (
                 steps_walked,
@@ -32,7 +34,7 @@ def insert_walk(walk: VitalXWalk) -> None:
         logger.debug("Walk inserted into the database successfully")
     except Exception as e:
         logger.error("Failed to insert walk into the database: %s", e, exc_info=True)
-        raise RuntimeError(f"Failed to insert walk due to: {e}")
+        raise DatabaseError(f"Failed to insert walk due to: {e}")
 
 
 def insert_sleep(sleep: VitalXSleep) -> None:
@@ -56,7 +58,7 @@ def insert_sleep(sleep: VitalXSleep) -> None:
         logger.debug("Sleep inserted into the database successfully")
     except Exception as e:
         logger.error("Failed to insert sleep into the database: %s", e, exc_info=True)
-        raise RuntimeError(f"Failed to insert sleep due to: {e}")
+        raise DatabaseError(f"Failed to insert sleep due to: {e}")
 
 
 def get_total_steps(
@@ -145,7 +147,7 @@ def reset_streak(
         logger.debug("Streak reset successfully")
     except Exception as e:
         logger.error("Failed to reset streak due to: %s", e, exc_info=True)
-        raise RuntimeError(f"Failed to insert new streak due to: {e}")
+        raise DatabaseError(f"Failed to insert new streak due to: {e}")
 
 
 def save_new_streak(
@@ -162,7 +164,7 @@ def save_new_streak(
         logger.error(
             "Failed to save updated streak in the database: %s", e, exc_info=True
         )
-        raise RuntimeError(f"Failed to insert new streak due to: {e}")
+        raise DatabaseError(f"Failed to insert new streak due to: {e}")
 
 
 def get_latest_streak(

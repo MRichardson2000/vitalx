@@ -5,6 +5,7 @@ sys.path.append(str(Path(__file__).parent / "src"))
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output, State
 from src.vitalx.vitalx import VitalXWalk, VitalXSleep
+from vitalx.exceptions import DatabaseError
 from datetime import datetime
 from src.vitalx.service import (
     insert_walk,
@@ -206,7 +207,7 @@ def submit_walk(n: int, location: str, steps: int, calories: int):
         return "Walk entry saved!"
     except Exception as e:
         logger.error("Failed to submit walk due to: %s", e)
-        return "Failed to submit walk entry"
+        raise DatabaseError("Failed to submit walk entry")
 
 
 @app.callback(  # type: ignore[misc]
@@ -234,7 +235,7 @@ def submit_sleep(n: int, hours: int, minutes: int, quality: str):
         return "Sleep entry saved!"
     except Exception as e:
         logger.error("Failed to submit sleep entry: %s", e, exc_info=True)
-        return "Failed to save sleep entry"
+        raise DatabaseError("Failed to save sleep entry")
 
 
 app.layout = create_layout()
