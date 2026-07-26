@@ -102,8 +102,7 @@ def did_walk_today(walk_history: list[dict[str, Any]]) -> bool:
 def get_last_walk_date(walk_history: list[dict[str, Any]]) -> datetime:
     all_walk_data: list[dict[str, Any]] = []
     all_dates: list[datetime] = []
-    walk_data = walk_history
-    for walk in walk_data:
+    for walk in walk_history:
         all_walk_data.append(walk)
     for x in all_walk_data:
         for k, v in x.items():
