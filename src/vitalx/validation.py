@@ -1,4 +1,4 @@
-from vitalx.vitalx import VitalXWalk
+from vitalx.vitalx import VitalXWalk, VitalXSleep
 from vitalx.exceptions import ValidationError
 
 
@@ -13,3 +13,11 @@ def validate_walk(walk: VitalXWalk) -> None:
         )
     if not walk.walk_location or not walk.walk_location.strip():
         raise ValidationError("Walk location cannot be blank")
+
+
+def validate_sleep(sleep: VitalXSleep) -> None:
+    if sleep.hours_slept is None:  # type: ignore
+        raise ValidationError("Hours slept cannot be blank")
+
+    if sleep.minutes_slept is None:  # type: ignore
+        raise ValidationError("Minutes slept cannot be blank")

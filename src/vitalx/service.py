@@ -1,6 +1,6 @@
 from .dbutils import execute_query, load_sql_as_text, fetch_result
 from vitalx.vitalx import VitalXWalk, VitalXSleep
-from vitalx.validation import validate_walk
+from vitalx.validation import validate_walk, validate_sleep
 from vitalx.exceptions import DatabaseError
 from typing import Any, Callable
 from pathlib import Path
@@ -38,6 +38,7 @@ def insert_walk(walk: VitalXWalk) -> None:
 
 
 def insert_sleep(sleep: VitalXSleep) -> None:
+    validate_sleep(sleep)
     sql = """
             insert into vitalx_sleep (
                 hours_slept, 
@@ -102,8 +103,7 @@ def did_walk_today(walk_history: list[dict[str, Any]]) -> bool:
 def get_last_walk_date(walk_history: list[dict[str, Any]]) -> datetime:
     all_walk_data: list[dict[str, Any]] = []
     all_dates: list[datetime] = []
-    walk_data = walk_history
-    for walk in walk_data:
+    for walk in walk_history:
         all_walk_data.append(walk)
     for x in all_walk_data:
         for k, v in x.items():
@@ -190,7 +190,7 @@ def update_streak_call_point(
     last_walk_date = last_walk_date_fn(walk_history)
     today = todays_date_fn().date()
     yesterday = today - timedelta(days=1)
-    if not walked_today and last_walk_date == yesterday:
+    if not walked_today and last_walk_date.date() == yesterday:
         reset_streak_fn()
     save_new_streak_fn()
 
