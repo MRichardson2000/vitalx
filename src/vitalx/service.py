@@ -195,8 +195,37 @@ def update_streak_call_point(
     save_new_streak_fn()
 
 
+def get_sleep_history(
+    query: str = "select * from vitalx_sleep",
+) -> list[dict[str, Any]]:
+    return fetch_result(query)
+
+
+def get_last_sleep_date(sleep_history: list[dict[str, Any]]) -> datetime:
+    all_sleep_data: list[dict[str, Any]] = []
+    all_dates: list[datetime] = []
+    for sleep in sleep_history:
+        all_sleep_data.append(sleep)
+    for x in all_sleep_data:
+        for k, v in x.items():
+            if k == "todays_date":
+                all_dates.append(v.date())
+    return max(all_dates)
+
+
+# come back to
+
+# def get_time_slept_n_day(
+#     get_sleep_history_fn: Callable[[str], list[dict[str, Any]]] = get_sleep_history,
+#     query: str = "select * from vitalx_sleep",
+#     get_sleep_date_fn: Callable[[list[dict[str, Any]]], datetime] = get_last_sleep_date,
+# ) -> float:
+#     sleep_history = get_sleep_history_fn(query)
+#     sleep_date = get_sleep_date_fn(sleep_history)
+
+
 def main() -> None:
-    print(get_latest_streak())
+    print(get_last_sleep_date(get_sleep_history()))
 
 
 if __name__ == "__main__":
