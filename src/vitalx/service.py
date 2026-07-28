@@ -1,10 +1,10 @@
 from .dbutils import execute_query, load_sql_as_text, fetch_result
 from vitalx.vitalx import VitalXWalk, VitalXSleep
 from vitalx.validation import validate_walk, validate_sleep
-from vitalx.exceptions import DatabaseError
-from typing import Any, Callable
+from vitalx.exceptions import DatabaseError, EmptyDictionaryError, EmptyListError
+from typing import Any
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from vitalx.utils import ANALYTICS_DBO
 from vitalx.logger import get_logger
 
@@ -66,10 +66,15 @@ def get_total_steps(
     file_path: Path = ANALYTICS_DBO,
     file_name: str = "get_total_step_count.sql",
     return_value: str = "total_steps",
-) -> int:
+) -> int | None:
     sql = load_sql_as_text(file_path, file_name)
-    rows = fetch_result(sql)
-    return int(rows[0][return_value] or 0)
+    try:
+        rows = fetch_result(sql)
+        logger.debug("Successfully retrieved total steps")
+        return int(rows[0][return_value])
+    except Exception as e:
+        logger.error("Failed to retrieve total steps: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to retrieve total steps due to: {e}")
 
 
 def get_total_sleep_time(
@@ -79,36 +84,63 @@ def get_total_sleep_time(
     minutes_value: str = "total_minutes",
 ) -> tuple[int, int]:
     sql = load_sql_as_text(file_path, file_name)
-    rows = fetch_result(sql)
-    total_hours = int(rows[0][hours_value])
-    total_minutes = int(rows[0][minutes_value])
-    total_hours += total_minutes // 60
-    total_minutes = total_minutes % 60
-    return total_hours, total_minutes
+    try:
+        rows = fetch_result(sql)
+        total_hours = int(rows[0][hours_value])
+        total_minutes = int(rows[0][minutes_value])
+        total_hours += total_minutes // 60
+        total_minutes = total_minutes % 60
+        logger.debug("Successfully retrieved total sleep time")
+        return total_hours, total_minutes
+    except Exception as e:
+        logger.error("Failed to get total sleep time: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get total sleep time due to: {e}")
 
 
 def get_walk_history(query: str = "select * from vitalx_walk") -> list[dict[str, Any]]:
-    return fetch_result(query)
+    try:
+        walk_history = fetch_result(query)
+        logger.debug("Successfully retrieved walk history")
+        return walk_history
+    except Exception as e:
+        logger.error("Failed to get walk history: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get walk history due to: {e}")
 
 
 def did_walk_today(walk_history: list[dict[str, Any]]) -> bool:
+    today = datetime.now().date()
     for walk in walk_history:
-        todays_date = walk.get("todays_date")
-        todays_date = datetime.fromisoformat(str(todays_date))
-        if todays_date.date() == datetime.now().date():
+        raw_date = walk.get("todays_date")
+        if not raw_date:
+            continue
+        if isinstance(raw_date, datetime):
+            walk_date = raw_date.date()
+        elif isinstance(raw_date, str):
+            walk_date = datetime.fromisoformat(raw_date).date()
+        else:
+            walk_date = raw_date
+        if walk_date == today:
+            logger.info("User did walk today")
             return True
     return False
 
 
-def get_last_walk_date(walk_history: list[dict[str, Any]]) -> datetime:
-    all_walk_data: list[dict[str, Any]] = []
-    all_dates: list[datetime] = []
+def get_last_walk_date(walk_history: list[dict[str, Any]]) -> date:
+    all_dates: list[date] = []
+    if not walk_history:
+        logger.error("Walk History dictionary is empty", exc_info=True)
+        raise EmptyDictionaryError("Walk history is empty")
     for walk in walk_history:
-        all_walk_data.append(walk)
-    for x in all_walk_data:
-        for k, v in x.items():
-            if k == "todays_date":
-                all_dates.append(v.date())
+        raw_date = walk.get("todays_date")
+        if isinstance(raw_date, datetime):
+            all_dates.append(raw_date.date())
+        elif isinstance(raw_date, date):
+            all_dates.append(raw_date)
+        elif isinstance(raw_date, str):
+            all_dates.append(datetime.fromisoformat(raw_date).date())
+    if not all_dates:
+        logger.error("The all dates list in the get last walk date function is empty")
+        raise EmptyListError("No Valid dates in all dates list")
     return max(all_dates)
 
 
@@ -117,19 +149,30 @@ def get_current_streak(
     todays_date_value: str = "todays_date",
     streak_value: str = "streak",
 ) -> int:
-    current_streak: list[int] = []
     yesterday = datetime.now().date() - timedelta(days=1)
-    sql = fetch_result(query)
-    for x in sql:
-        if x[todays_date_value].date() == yesterday:
-            current_streak.append(x[streak_value])
-    return current_streak[0]
+    try:
+        sql = fetch_result(query)
+        logger.debug("Successfully retrieved all walk streak data")
+        for x in sql:
+            raw_date = x[todays_date_value]
+            if isinstance(raw_date, datetime):
+                val_date = raw_date.date()
+            elif isinstance(raw_date, str):
+                val_date = datetime.fromisoformat(raw_date).date()
+            else:
+                val_date = raw_date
+            if val_date == yesterday:
+                return int(x[streak_value])
+        return 1
+    except Exception as e:
+        logger.error("Failed to retrieve walk streak data: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to retrieve walk streak data due to: {e}")
 
 
 def calculate_new_streak(
-    get_current_streak_fn: Callable[[], int] = get_current_streak,
+    get_current_streak: int,
 ) -> int:
-    return get_current_streak_fn() + 1
+    return get_current_streak + 1
 
 
 def validate_streak(steps_walked: int, required_steps: int = 7000) -> bool:
@@ -138,10 +181,12 @@ def validate_streak(steps_walked: int, required_steps: int = 7000) -> bool:
 
 def reset_streak(
     query: str = "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
+    todays_date: datetime | None = None,
     streak: int = 1,
-    todays_date: Callable[[], datetime] = datetime.now,
 ) -> None:
-    params: dict[str, Any] = {"streak": streak, "todays_date": todays_date()}
+    if todays_date is None:
+        todays_date = datetime.now()
+    params: dict[str, Any] = {"streak": streak, "todays_date": todays_date}
     try:
         execute_query(query, params)
         logger.debug("Streak reset successfully")
@@ -151,12 +196,13 @@ def reset_streak(
 
 
 def save_new_streak(
+    calculate_streak: int,
     query: str = "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
-    todays_date: Callable[[], datetime] = datetime.now,
-    calculate_streak_fn: Callable[[], int] = calculate_new_streak,
+    todays_date: datetime | None = None,
 ) -> None:
-    streak = calculate_streak_fn()
-    params: dict[str, Any] = {"streak": streak, "todays_date": todays_date()}
+    if todays_date is None:
+        todays_date = datetime.now()
+    params: dict[str, Any] = {"streak": calculate_streak, "todays_date": todays_date}
     try:
         execute_query(query, params)
         logger.debug("Updated Streak has been entered into the database successfully")
@@ -169,63 +215,50 @@ def save_new_streak(
 
 def get_latest_streak(
     query: str = "select streak from vitalx_walk_streak order by todays_date desc limit 1",
-    input_value: str = "streak",
 ) -> int:
-    rows = fetch_result(query)
-    if not rows:
-        return 1
-    return rows[0][input_value]
+    try:
+        rows = fetch_result(query)
+        logger.debug("Successfully retrieved latest streak")
+        if not rows:
+            return 1
+        return rows[0]["streak"]
+    except Exception as e:
+        logger.error("Failed to get latest streak: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to retrieve latest streak due to: {e}")
 
 
-def update_streak_call_point(
-    walk_history_fn: Callable[[], list[dict[str, Any]]] = get_walk_history,
-    walked_today_fn: Callable[[list[dict[str, Any]]], bool] = did_walk_today,
-    last_walk_date_fn: Callable[[list[dict[str, Any]]], datetime] = get_last_walk_date,
-    save_new_streak_fn: Callable[[], None] = lambda: save_new_streak(),
-    reset_streak_fn: Callable[[], None] = lambda: reset_streak(),
-    todays_date_fn: Callable[[], datetime] = datetime.now,
-) -> None:
-    walk_history = walk_history_fn()
-    walked_today = walked_today_fn(walk_history)
-    last_walk_date = last_walk_date_fn(walk_history)
-    today = todays_date_fn().date()
-    yesterday = today - timedelta(days=1)
-    if not walked_today and last_walk_date.date() == yesterday:
-        reset_streak_fn()
-    save_new_streak_fn()
+def update_streak_call_point(walked_today: bool = True) -> None:
+    walk_history = get_walk_history()
+    if not walk_history:
+        save_new_streak(1)
+        return
+    last_walk_date = get_last_walk_date(walk_history)
+    yesterday = datetime.now().date() - timedelta(days=1)
+    if walked_today:
+        if last_walk_date == yesterday:
+            current_streak = get_current_streak()
+            new_streak = calculate_new_streak(current_streak)
+            save_new_streak(new_streak)
+        else:
+            reset_streak()
+    else:
+        reset_streak()
 
 
 def get_sleep_history(
     query: str = "select * from vitalx_sleep",
 ) -> list[dict[str, Any]]:
-    return fetch_result(query)
-
-
-def get_last_sleep_date(sleep_history: list[dict[str, Any]]) -> datetime:
-    all_sleep_data: list[dict[str, Any]] = []
-    all_dates: list[datetime] = []
-    for sleep in sleep_history:
-        all_sleep_data.append(sleep)
-    for x in all_sleep_data:
-        for k, v in x.items():
-            if k == "todays_date":
-                all_dates.append(v.date())
-    return max(all_dates)
-
-
-# come back to
-
-# def get_time_slept_n_day(
-#     get_sleep_history_fn: Callable[[str], list[dict[str, Any]]] = get_sleep_history,
-#     query: str = "select * from vitalx_sleep",
-#     get_sleep_date_fn: Callable[[list[dict[str, Any]]], datetime] = get_last_sleep_date,
-# ) -> float:
-#     sleep_history = get_sleep_history_fn(query)
-#     sleep_date = get_sleep_date_fn(sleep_history)
+    try:
+        sleep_history = fetch_result(query)
+        logger.debug("Successfully retrieved sleep history")
+        return sleep_history
+    except Exception as e:
+        logger.error("Failed to retreive sleep history: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to retrieve sleep history due to: {e}")
 
 
 def main() -> None:
-    print(get_last_sleep_date(get_sleep_history()))
+    print(get_latest_streak())
 
 
 if __name__ == "__main__":
