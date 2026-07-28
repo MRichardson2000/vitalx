@@ -107,7 +107,7 @@ def create_layout():
     )
 
 
-@app.callback(  # type: ignore[misc]
+@app.callback(
     Output("walk_input_section", "style"),
     Output("sleep_input_section", "style"),
     Output("walk_totals_section", "style"),
@@ -143,7 +143,7 @@ def toggle_sections(mode: str | None):
     )
 
 
-@app.callback(  # type: ignore[misc]
+@app.callback(
     Output("total_steps_output", "children"),
     Input("entry_mode", "value"),
 )
@@ -153,7 +153,7 @@ def update_total_steps(mode: str | None):
     return ""
 
 
-@app.callback(  # type: ignore[misc]
+@app.callback(
     Output("streak_output", "children"),
     Input("entry_mode", "value"),
     Input("submit_walk", "n_clicks"),
@@ -165,7 +165,7 @@ def update_streak(mode: str | None, _):
     return ""
 
 
-@app.callback(  # type: ignore[misc]
+@app.callback(
     Output("total_sleep_output", "children"),
     Input("entry_mode", "value"),
 )
@@ -176,7 +176,7 @@ def update_total_sleep(mode: str | None):
     return ""
 
 
-@app.callback(  # type: ignore[misc]
+@app.callback(
     Output("walk_output", "children"),
     Input("submit_walk", "n_clicks"),
     State("walk_location", "value"),
@@ -195,7 +195,7 @@ def submit_walk(n: int, location: str, steps: int, calories: int):
     valid = validate_streak(walk.steps_walked)
     if valid:
         logger.info("Walk passed the streak validation threshold (%d steps).", steps)
-        update_streak_call_point()
+        update_streak_call_point(walked_today=True)
     else:
         logger.warning(
             "Walk failed streak validation (%d steps). Triggering reset.", steps
@@ -210,7 +210,7 @@ def submit_walk(n: int, location: str, steps: int, calories: int):
         raise DatabaseError("Failed to submit walk entry")
 
 
-@app.callback(  # type: ignore[misc]
+@app.callback(
     Output("sleep_output", "children"),
     Input("submit_sleep", "n_clicks"),
     State("sleep_hours", "value"),
@@ -243,7 +243,7 @@ app.layout = create_layout()
 
 def main():
     logger.info("Initialising VitalX Dash Application Server on localhost:8050")
-    app.run(debug=True)  # type: ignore[misc]
+    app.run(debug=True)
 
 
 if __name__ == "__main__":
