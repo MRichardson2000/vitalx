@@ -6,11 +6,15 @@ I have this configured on my linux laptop so it runs on boot. The idea being it 
 
 
 ## The service lives here - nano ~/.config/systemd/user/vitalx.service 
+
+
 With the below config
--------------------------
+
+
 [Unit]
 Description=VitalX Web App
 After=default.target
+
 
 [Service]
 Type=simple
@@ -19,13 +23,14 @@ ExecStart=/home/marcus/Documents/VitalX/.venv/bin/python app.py
 Restart=always
 Environment=PYTHONUNBUFFERED=1
 
+
 [Install]
 WantedBy=default.target
---------------------------
 
 
 ## I've set chrome to autostart via this command - nano ~/.config/autostart/vitalx.desktop
---------------------------
+
+
 [Desktop Entry]
 Type=Application
 Exec=bash -c "sleep 2 && google-chrome http://127.0.0.1:8050"
@@ -33,7 +38,6 @@ Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
 Name=VitalX Auto Launch
---------------------------
 
 
 So I log in and it opens the app straight away so I can type my details in. 
