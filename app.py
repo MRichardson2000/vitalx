@@ -13,11 +13,9 @@ from src.vitalx.service import (
     get_total_steps,
     get_total_sleep_time,
     get_latest_streak,
-    update_streak_call_point,
-    validate_streak,
-    reset_streak,
     did_walk_today,
     get_walk_history,
+    validate_streak,
 )
 from vitalx.logger import setup_logging, get_logger
 
@@ -195,18 +193,20 @@ def submit_walk(n: int, location: str, steps: int, calories: int):
         walk_location=location,
     )
     valid = validate_streak(walk.steps_walked)
-    if valid:
-        logger.info("Walk passed the streak validation threshold (%d steps).", steps)
-        update_streak_call_point(did_walk_today(get_walk_history()))
-    else:
-        logger.warning(
-            "Walk failed streak validation (%d steps). Triggering reset.", steps
-        )
-        reset_streak()
     try:
         insert_walk(walk)
         logger.info("Walk entry saved successfully for location: %s", location)
-        return "Walk entry saved!"
+        if valid:
+            update_streak()
+            logger.info(
+                "Walk passed the streak validation threshold (%d steps).", steps
+            )
+            return "Walk entry saved!"
+        else:
+            logger.warning(
+                "Walk failed streak validation (%d steps). Triggering reset.", steps
+            )
+            return "Streak not updated due to failing validation"
     except Exception as e:
         logger.error("Failed to submit walk due to: %s", e)
         raise DatabaseError("Failed to submit walk entry")
