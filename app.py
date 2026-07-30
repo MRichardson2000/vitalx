@@ -13,10 +13,8 @@ from src.vitalx.service import (
     get_total_steps,
     get_total_sleep_time,
     get_latest_streak,
-    did_walk_today,
-    get_walk_history,
     validate_streak,
-    update_streak
+    update_streak,
 )
 from vitalx.logger import setup_logging, get_logger
 
