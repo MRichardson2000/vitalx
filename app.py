@@ -16,6 +16,7 @@ from src.vitalx.service import (
     did_walk_today,
     get_walk_history,
     validate_streak,
+    update_streak
 )
 from vitalx.logger import setup_logging, get_logger
 
@@ -158,7 +159,7 @@ def update_total_steps(mode: str | None):
     Input("entry_mode", "value"),
     Input("submit_walk", "n_clicks"),
 )
-def update_streak(mode: str | None, _):
+def update_streak_ui(mode: str | None, _):
     if mode == "walk":
         streak = get_latest_streak()
         return f"Current streak: {streak} day{'s' if streak != 1 else ''}🔥"
