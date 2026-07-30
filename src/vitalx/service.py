@@ -108,7 +108,6 @@ def get_walk_history(query: str = "select * from vitalx_walk") -> list[dict[str,
 
 
 def did_walk_today(walk_history: list[dict[str, Any]]) -> bool:
-    today = datetime.now().date()
     for walk in walk_history:
         raw_date = walk.get("todays_date")
         if not raw_date:
@@ -119,7 +118,7 @@ def did_walk_today(walk_history: list[dict[str, Any]]) -> bool:
             walk_date = datetime.fromisoformat(raw_date).date()
         else:
             walk_date = raw_date
-        if walk_date == today:
+        if walk_date == datetime.now().date():
             logger.info("User did walk today")
             return True
     return False
@@ -234,13 +233,11 @@ def update_streak_call_point(walked_today: bool = True) -> None:
         return
     last_walk_date = get_last_walk_date(walk_history)
     yesterday = datetime.now().date() - timedelta(days=1)
-    if walked_today:
+    if walked_today == True:
         if last_walk_date == yesterday:
             current_streak = get_current_streak()
             new_streak = calculate_new_streak(current_streak)
             save_new_streak(new_streak)
-        else:
-            reset_streak()
     else:
         reset_streak()
 
@@ -258,7 +255,7 @@ def get_sleep_history(
 
 
 def main() -> None:
-    print(get_latest_streak())
+    print(get_last_walk_date(get_walk_history()))
 
 
 if __name__ == "__main__":
