@@ -187,11 +187,7 @@ def streak_row_exists_for_today() -> bool:
         logger.debug("Successfully retrieved row from the database that matches today")
         return len(rows) > 0
     except Exception as e:
-        logger.error(
-            "Failed to confirm if streak row exists for today due to: %s",
-            e,
-            exc_info=True,
-        )
+        logger.error("Failed to confirm if streak row exists for today due to: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to confirm if streak row exists for today")
 
 
@@ -232,7 +228,13 @@ def get_latest_streak() -> int:
 
 
 def validate_streak(steps_walked: int, required_steps: int = 7000) -> bool:
+    '''Current minimum requirement for steps is 7k. This checks for this.'''
     return steps_walked >= required_steps
+
+
+######################################################################
+# Sleep History
+######################################################################
 
 
 def get_sleep_history(
