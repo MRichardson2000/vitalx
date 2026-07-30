@@ -123,24 +123,34 @@ def get_walk_history(query: str = "select * from vitalx_walk") -> list[dict[str,
 
 
 def get_last_walk_date() -> date | None:
-    rows = fetch_result(
-        "select todays_date from vitalx_walk order by todays_date desc limit 1"
-    )
-    if not rows:
-        return None
-    raw = rows[0]["todays_date"]
-    if isinstance(raw, datetime):
-        return raw.date()
-    return datetime.fromisoformat(str(raw)).date()
+    try:
+        rows = fetch_result(
+            "select todays_date from vitalx_walk order by todays_date desc limit 1"
+        )
+        if not rows:
+            return None
+        logger.debug("Successfully retrieved last walk date")
+        raw = rows[0]["todays_date"]
+        if isinstance(raw, datetime):
+            return raw.date()
+        return datetime.fromisoformat(str(raw)).date()
+    except Exception as e:
+        logger.error("Failed to get last walk date: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get last walk date due to: {e}")
 
 
 def did_walk_today() -> bool:
     today = datetime.now().date()
-    rows = fetch_result(
-        "select todays_date from vitalx_walk where todays_date::date = :today",
-        {"today": today},
-    )
-    return len(rows) > 0
+    try:
+        rows = fetch_result(
+            "select todays_date from vitalx_walk where todays_date::date = :today",
+            {"today": today},
+        )
+        logger.debug("successfully confirmed that user walked today")
+        return len(rows) > 0
+    except Exception as e:
+        logger.error("Failed to confirm if user walked today: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to confirm if user walked today due to: {e}")
 
 
 ######################################################################
@@ -149,26 +159,40 @@ def did_walk_today() -> bool:
 
 
 def get_latest_streak_entry() -> tuple[int, date] | None:
-    rows = fetch_result(
-        "select * from vitalx_walk_streak order by todays_date desc limit 1"
-    )
-    if not rows:
-        return None
-    raw_date = rows[0]["todays_date"]
-    if isinstance(raw_date, datetime):
-        d = raw_date.date()
-    else:
-        d = datetime.fromisoformat(str(raw_date)).date()
-    return rows[0]["streak"], d
+    try:
+        rows = fetch_result(
+            "select * from vitalx_walk_streak order by todays_date desc limit 1"
+        )
+        logger.debug("Successfully retrieved latest streak")
+        if not rows:
+            return None
+        raw_date = rows[0]["todays_date"]
+        if isinstance(raw_date, datetime):
+            d = raw_date.date()
+        else:
+            d = datetime.fromisoformat(str(raw_date)).date()
+        return rows[0]["streak"], d
+    except Exception as e:
+        logger.error("Failed to get latest streak due to: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get latest streak")
 
 
 def streak_row_exists_for_today() -> bool:
     today = datetime.now().date()
-    rows = fetch_result(
-        "select todays_date from vitalx_walk_streak where todays_date::date = :today",
-        {"today": today},
-    )
-    return len(rows) > 0
+    try:
+        rows = fetch_result(
+            "select todays_date from vitalx_walk_streak where todays_date::date = :today",
+            {"today": today},
+        )
+        logger.debug("Successfully retrieved row from the database that matches today")
+        return len(rows) > 0
+    except Exception as e:
+        logger.error(
+            "Failed to confirm if streak row exists for today due to: %s",
+            e,
+            exc_info=True,
+        )
+        raise DatabaseError(f"Failed to confirm if streak row exists for today")
 
 
 def update_streak() -> None:
@@ -188,11 +212,15 @@ def update_streak() -> None:
             new_streak = latest_streak_value + 1
         else:
             new_streak = 1
-    execute_query(
-        "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
-        {"streak": new_streak, "todays_date": datetime.now()},
-    )
-    logger.info("Streak updated: %d", new_streak)
+    try:
+        execute_query(
+            "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
+            {"streak": new_streak, "todays_date": datetime.now()},
+        )
+        logger.info("Streak updated: %d", new_streak)
+    except Exception as e:
+        logger.error("Failed to update streak due: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to update streak due to: {e}")
 
 
 def get_latest_streak() -> int:

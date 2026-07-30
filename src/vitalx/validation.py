@@ -16,8 +16,8 @@ def validate_walk(walk: VitalXWalk) -> None:
 
 
 def validate_sleep(sleep: VitalXSleep) -> None:
-    if sleep.hours_slept is None:  # type: ignore
+    if sleep.hours_slept is None:
         raise ValidationError("Hours slept cannot be blank")
 
-    if sleep.minutes_slept is None:  # type: ignore
+    if sleep.minutes_slept is None:
         raise ValidationError("Minutes slept cannot be blank")

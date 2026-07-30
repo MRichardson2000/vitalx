@@ -2,7 +2,7 @@ from vitalx.service import insert_sleep
 from vitalx.vitalx import VitalXSleep
 
 
-def test_insert_sleep(monkeypatch):  # type: ignore
+def test_insert_sleep(monkeypatch):
     sleep = VitalXSleep(8, 0, False)
     captured = {}
 
@@ -10,7 +10,7 @@ def test_insert_sleep(monkeypatch):  # type: ignore
         captured["sql"] = sql
         captured["params"] = params
 
-    monkeypatch.setattr("vitalx.service.execute_query", fake_execute_query)  # type: ignore
+    monkeypatch.setattr("vitalx.service.execute_query", fake_execute_query)
     insert_sleep(sleep)
     assert "insert into vitalx_sleep" in captured["sql"]
     assert isinstance(captured["params"]["hours_slept"], int)

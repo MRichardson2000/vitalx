@@ -3,7 +3,7 @@ from vitalx.vitalx import VitalXWalk
 from datetime import datetime
 
 
-def test_insert_walk(monkeypatch):  # type: ignore
+def test_insert_walk(monkeypatch):
     walk = VitalXWalk(
         steps_walked=7100,
         calories_burnt=300,
@@ -16,7 +16,7 @@ def test_insert_walk(monkeypatch):  # type: ignore
         captured["sql"] = sql
         captured["params"] = params
 
-    monkeypatch.setattr("vitalx.service.execute_query", fake_execute_query)  # type: ignore
+    monkeypatch.setattr("vitalx.service.execute_query", fake_execute_query)
     insert_walk(walk)
     assert "insert into vitalx_walk" in captured["sql"]
     assert isinstance(captured["params"]["steps_walked"], int)
