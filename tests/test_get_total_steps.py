@@ -1,7 +1,7 @@
 from vitalx.service import get_total_steps
 
 
-def test_get_total_steps_int(monkeypatch):
+def test_get_total_steps(monkeypatch):
     def fake_fetch_result(query):
         return [{"total_steps": 4875}]
 
