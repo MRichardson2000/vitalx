@@ -253,8 +253,24 @@ def get_sleep_history(
         raise DatabaseError(f"Failed to retrieve sleep history due to: {e}")
 
 
+def did_sleep_eight_hours_last_night() -> bool | None:
+    try:
+        rows = fetch_result(
+            "select hours_slept, todays_date from vitalx_sleep order by todays_date desc limit 1"
+        )
+        if not rows:
+            return None
+        logger.debug(
+            "Sucessfully retrieved hours slept and todays date for latest sleep entry"
+        )
+        return rows[0]["hours_slept"] >= 8
+    except Exception as e:
+        logger.error("Failed to retrieve hours slept: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get last walk date due to: {e}")
+
+
 def main() -> None:
-    pass
+    print(did_sleep_eight_hours_last_night())
 
 
 if __name__ == "__main__":

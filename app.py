@@ -15,6 +15,7 @@ from src.vitalx.service import (
     get_latest_streak,
     validate_streak,
     update_streak,
+    did_sleep_eight_hours_last_night,
 )
 from vitalx.logger import setup_logging, get_logger
 
@@ -48,6 +49,7 @@ def create_layout():
                 id="sleep_totals_section",
                 children=[
                     html.Div(id="total_sleep_output"),
+                    html.Div(id="fatigue_status"),
                 ],
                 style={"display": "none", "marginBottom": "20px"},
             ),
@@ -237,6 +239,22 @@ def submit_sleep(n: int, hours: int, minutes: int, quality: str):
     except Exception as e:
         logger.error("Failed to submit sleep entry: %s", e, exc_info=True)
         raise DatabaseError("Failed to save sleep entry")
+
+
+@app.callback(
+    Output("fatigue_status", "children"),
+    Input("entry_mode", "value"),
+    Input("submit_sleep", "n_clicks"),
+)
+def fatigue_status(mode, _) -> str:
+    if mode != "sleep":
+        return ""
+    result = did_sleep_eight_hours_last_night()
+    if result is None:
+        return "No sleep data"
+    if result is True:
+        return "Today you are Energised! 😀"
+    return "Warning! Fatigued!: 😞"
 
 
 app.layout = create_layout()
