@@ -1,7 +1,7 @@
 from .dbutils import execute_query, load_sql_as_text, fetch_result
 from vitalx.vitalx import VitalXWalk, VitalXSleep
 from vitalx.validation import validate_walk, validate_sleep
-from vitalx.exceptions import DatabaseError, EmptyDictionaryError, EmptyListError
+from vitalx.exceptions import DatabaseError
 from typing import Any
 from pathlib import Path
 from datetime import datetime, timedelta, date

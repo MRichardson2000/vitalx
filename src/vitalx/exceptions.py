@@ -14,15 +14,3 @@ class DatabaseError(VitalXError):
     """Raised when underlying database operations fail"""
 
     pass
-
-
-class EmptyDictionaryError(VitalXError):
-    """Raised when an empty dictionary is passed in and an index value is raised"""
-
-    pass
-
-
-class EmptyListError(VitalXError):
-    """Raised when an empty list is passed in and an index value is raised"""
-
-    pass

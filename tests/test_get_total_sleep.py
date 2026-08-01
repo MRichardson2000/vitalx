@@ -1,8 +1,7 @@
 from vitalx.service import get_total_sleep_time
-from typing import Any
 
 
-def test_get_total_sleep_time(monkeypatch: Any):
+def test_get_total_sleep_time(monkeypatch):
     def fake_fetch_result(query):
         return [{"total_hours": 7, "total_minutes": 39}]
 
