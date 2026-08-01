@@ -140,11 +140,10 @@ def get_last_walk_date() -> date | None:
 
 
 def did_walk_today() -> bool:
-    today = datetime.now().date()
     try:
         rows = fetch_result(
             "select todays_date from vitalx_walk where todays_date::date = :today",
-            {"today": today},
+            {"today": datetime.now().date()},
         )
         logger.debug("successfully confirmed that user walked today")
         return len(rows) > 0
@@ -271,7 +270,7 @@ def did_sleep_eight_hours_last_night(
 
 
 def main() -> None:
-    print(get_walk_history())
+    print(did_walk_today())
 
 
 if __name__ == "__main__":
