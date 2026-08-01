@@ -271,7 +271,7 @@ def did_sleep_eight_hours_last_night(
 
 
 def main() -> None:
-    print(get_total_steps())
+    print(get_walk_history())
 
 
 if __name__ == "__main__":
