@@ -270,7 +270,7 @@ def did_sleep_eight_hours_last_night(
 
 
 def main() -> None:
-    print(did_walk_today())
+    print(did_sleep_eight_hours_last_night())
 
 
 if __name__ == "__main__":
