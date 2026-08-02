@@ -1,0 +1,1 @@
+select max(streak) as highest_streak from vitalx_walk_streak

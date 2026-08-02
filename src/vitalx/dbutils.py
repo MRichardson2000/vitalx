@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 import sqlalchemy as sa
 from typing import Any
-from .utils import CREATES_DBO
+from .utils import CREATES_DBO, ANALYTICS_DBO
 from vitalx.logger import get_logger
 from vitalx.exceptions import DatabaseError
 
@@ -67,8 +67,19 @@ def create_schemas() -> None:
     execute_query(walk_streak)
 
 
+def view_sql_as_text() -> None:
+    cals_burnt = load_sql_as_text(ANALYTICS_DBO, "get_total_calories_burnt.sql")
+    walk_locations = load_sql_as_text(ANALYTICS_DBO, "get_walk_locations.sql")
+    highest_streak = load_sql_as_text(ANALYTICS_DBO, "get_highest_streak.sql")
+    average_sleep_quality = load_sql_as_text(
+        ANALYTICS_DBO, "get_good_and_bad_sleep.sql"
+    )
+    print(fetch_result(walk_locations))
+
+
 def main() -> None:
-    create_schemas()
+    # create_schemas()
+    view_sql_as_text()
 
 
 if __name__ == "__main__":
