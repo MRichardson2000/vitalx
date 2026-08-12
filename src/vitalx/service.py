@@ -1,5 +1,5 @@
 from .dbutils import execute_query, load_sql_as_text, fetch_result
-from vitalx.vitalx import VitalXWalk, VitalXSleep
+from vitalx.vitalx import VitalXWalk, VitalXSleep, Weather
 from vitalx.validation import validate_walk, validate_sleep
 from vitalx.exceptions import DatabaseError
 from typing import Any
@@ -65,6 +65,38 @@ def insert_sleep(sleep: VitalXSleep) -> None:
     except Exception as e:
         logger.error("Failed to insert sleep into the database: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to insert sleep due to: {e}")
+
+
+def insert_weather(weather: Weather) -> None:
+    sql = """
+            insert into weather (
+                todays_date,
+                temperature_2m_min,
+                temperature_2m_max,
+                sunrise,
+                sunset,
+                daylight_duration,
+                snowfall_sum,
+                rain_sum
+            )
+            values (:todays_date, :temperature_2m_min, :temperature_2m_max, :sunrise, :sunset, :daylight_duration, :snowfall_sum, :rain_sum)
+          """
+    params: dict[str, Any] = {
+        "todays_date": weather.todays_date,
+        "temperature_2m_min": weather.temperature_2m_min,
+        "temperature_2m_max": weather.temperature_2m_max,
+        "sunrise": weather.sunrise,
+        "sunset": weather.sunset,
+        "daylight_duration": weather.daylight_duration,
+        "snowfall_sum": weather.snowfall_sum,
+        "rain_sum": weather.rain_sum,
+    }
+    try:
+        execute_query(sql, params)
+        logger.debug("Weather inserted into the database successfully")
+    except Exception as e:
+        logger.error("Failed to insert Weather into the database: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to insert weather due to: {e}")
 
 
 ######################################################################

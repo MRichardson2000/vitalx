@@ -104,6 +104,15 @@ def create_layout():
                 ],
                 style={"display": "none"},
             ),
+            html.Div(
+                id="Weather",
+                children=[html.H4("Today's Weather"), html.Div(id="Weather")],
+                style={
+                    "marginBottom": "20px",
+                    "padding": "10px",
+                    "border": "1px solid #ccc",
+                },
+            ),
         ]
     )
 
@@ -255,6 +264,15 @@ def fatigue_status(mode, _) -> str:
     if result is True:
         return "Today you are Energised! 😀"
     return "Warning! Fatigued!: 😞"
+
+
+@app.callback(
+    Output("Weather", "children"),
+    Input("entry_mode", "value"),
+)
+def display_weather(mode: str | None):
+    """Carry on from here"""
+    pass
 
 
 app.layout = create_layout()
