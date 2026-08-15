@@ -40,7 +40,7 @@ def get_weather_data(
     daily = response.Daily()
     daily_temperature_2m_min = daily.Variables(0).ValuesAsNumpy()  # type: ignore
     daily_temperature_2m_max = daily.Variables(1).ValuesAsNumpy()  # type: ignore
-    daily_sunrise = daily.Variables(2).ValuesInt64AsNumpy() # type: ignore
+    daily_sunrise = daily.Variables(2).ValuesInt64AsNumpy()  # type: ignore
     daily_sunset = daily.Variables(3).ValuesInt64AsNumpy()  # type: ignore
     daily_daylight_duration = daily.Variables(4).ValuesAsNumpy()  # type: ignore
     daily_snowfall_duration = daily.Variables(5).ValuesAsNumpy()  # type: ignore

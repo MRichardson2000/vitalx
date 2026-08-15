@@ -1,6 +1,7 @@
 import sys
 from datetime import datetime
 from pathlib import Path
+
 sys.path.append(str(Path(__file__).parent / "src"))
 import pandas as pd
 from dash import Dash, dcc, html
