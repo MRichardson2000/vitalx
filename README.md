@@ -5,7 +5,7 @@ A really useful app for recording historical health data
 I have this configured on my linux laptop so it runs on boot. The idea being it opens up and I can quickly enter the details in from todays walk or last night's sleep.
 
 
-## The service lives here - nano ~/.config/systemd/user/vitalx.service 
+## The main app service lives here - nano ~/.config/systemd/user/vitalx.service 
 
 
 With the below config
@@ -38,6 +38,29 @@ Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
 Name=VitalX Auto Launch
+
+## The weather api services lives here - ~/.config/systemd/user/vitalx-weather.service
+
+[Unit]
+Description=VitalX Weather Fetcher On Startup
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/marcus/Documents/VitalX
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=.
+ExecStart=/home/marcus/Documents/VitalX/.venv/bin/python -m api.openmeteo.weather_api
+
+[Install]
+WantedBy=default.target
+
+This writes to the database the latest weather data. I've set it to write to the database in a morning because it makes the most sense. 
+I'll boot it up to enter my sleep data and then it shows me the weather data for the day.
+
+If I need to refresh this I've set an alias as wtr. run this and it will run the api
+wtr='systemctl --user daemon-reload && systemctl --user restart vitalx-weather.service && systemctl --user status vitalx-weather.service'
 
 
 So I log in and it opens the app straight away so I can type my details in. 

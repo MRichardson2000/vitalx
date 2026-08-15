@@ -59,12 +59,15 @@ def create_schemas() -> None:
     walk = load_sql_as_text(CREATES_DBO, "create_vitalx_walk_table.sql")
     sleep = load_sql_as_text(CREATES_DBO, "create_vitalx_sleep_table.sql")
     walk_streak = load_sql_as_text(CREATES_DBO, "create_vitalx_walk_streak_table.sql")
+    weather = load_sql_as_text(CREATES_DBO, "create_weather_table.sql")
     print("# --- Creating Walk Table --- #")
     execute_query(walk)
     print("# --- Creating Sleep Table --- #")
     execute_query(sleep)
     print("# --- Creating Walk Streak Table --- #")
     execute_query(walk_streak)
+    print("# --- Creating Weather Table --- #")
+    execute_query(weather)
 
 
 def view_sql_as_text() -> None:
@@ -78,8 +81,8 @@ def view_sql_as_text() -> None:
 
 
 def main() -> None:
-    # create_schemas()
-    view_sql_as_text()
+    create_schemas()
+    # view_sql_as_text()
 
 
 if __name__ == "__main__":

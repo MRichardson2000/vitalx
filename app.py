@@ -1,23 +1,25 @@
 import sys
+from datetime import datetime
 from pathlib import Path
-
 sys.path.append(str(Path(__file__).parent / "src"))
+import pandas as pd
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output, State
-from src.vitalx.vitalx import VitalXWalk, VitalXSleep
-from vitalx.exceptions import DatabaseError
-from datetime import datetime
+from api.openmeteo.weather_api import get_weather_data
 from src.vitalx.service import (
-    insert_walk,
-    insert_sleep,
-    get_total_steps,
-    get_total_sleep_time,
-    get_latest_streak,
-    validate_streak,
-    update_streak,
     did_sleep_eight_hours_last_night,
+    get_latest_streak,
+    get_total_sleep_time,
+    get_total_steps,
+    insert_sleep,
+    insert_walk,
+    update_streak,
+    validate_streak,
 )
-from vitalx.logger import setup_logging, get_logger
+from src.vitalx.vitalx import VitalXSleep, VitalXWalk
+from vitalx.exceptions import DatabaseError
+from vitalx.logger import get_logger, setup_logging
+
 
 setup_logging()
 logger = get_logger(__name__)
@@ -28,9 +30,7 @@ server = app.server
 def create_layout():
     return html.Div(
         children=[
-            html.H3(
-                f"Hey Marcus, enter todays VitalX stats - {datetime.now().strftime('%Y-%m-%d')}"
-            ),
+            html.H3(f"VitalX - Good Morning Mr Richardson - Have a blessed day!"),
             html.Div(
                 id="walk_totals_section",
                 children=[
@@ -78,6 +78,9 @@ def create_layout():
                     dcc.Input(
                         id="walk_calories", type="text", placeholder="Calories burned"
                     ),
+                    dcc.Input(
+                        id="walk_miles", type="number", placeholder="Miles walked"
+                    ),
                     html.Button("Submit Walk", id="submit_walk", n_clicks=0),
                     html.Div(id="walk_output", style={"marginTop": "10px"}),
                 ],
@@ -103,6 +106,18 @@ def create_layout():
                     html.Div(id="sleep_output", style={"marginTop": "10px"}),
                 ],
                 style={"display": "none"},
+            ),
+            html.Div(
+                id="weather_section",
+                children=[
+                    html.H4("Today's Weather"),
+                    html.Div(id="Weather"),
+                ],
+                style={
+                    "marginBottom": "20px",
+                    "padding": "10px",
+                    "border": "1px solid #ccc",
+                },
             ),
         ]
     )
@@ -183,14 +198,15 @@ def update_total_sleep(mode: str | None):
     State("walk_location", "value"),
     State("walk_steps", "value"),
     State("walk_calories", "value"),
+    State("walk_miles", "value"),
     prevent_initial_call=True,
 )
-def submit_walk(n: int, location: str, steps: int, calories: int):
-    """n is required for dash."""
+def submit_walk(n: int, location: str, steps: int, calories: int, miles: float):
     logger.info("Submission received for walk entry")
     walk = VitalXWalk(
         steps_walked=int(steps),
         calories_burnt=int(calories),
+        miles_walked=float(miles) if miles else 0.0,
         walk_location=location,
     )
     valid = validate_streak(walk.steps_walked)
@@ -255,6 +271,39 @@ def fatigue_status(mode, _) -> str:
     if result is True:
         return "Today you are Energised! 😀"
     return "Warning! Fatigued!: 😞"
+
+
+@app.callback(
+    Output("Weather", "children"),
+    Input("entry_mode", "value"),
+)
+def display_weather(mode: str | None):
+    try:
+        df = get_weather_data()
+        if df.empty:
+            return "No weather data available."
+        row = df.iloc[0]
+        date_str = pd.to_datetime(row["date"]).strftime("%Y-%m-%d")
+        min_temp = int(round(row["temperature_2m_min"]))
+        max_temp = int(round(row["temperature_2m_max"]))
+        daylight_hrs = int(round(row["daylight_duration"] / 3600))
+        rain_sum = int(round(row["rain_sum"]))
+        snow_sum = int(round(row["snowfall_sum"]))
+        sunrise_dt = pd.to_datetime(row["sunrise"], unit="s", utc=True)
+        sunset_dt = pd.to_datetime(row["sunset"], unit="s", utc=True)
+        items = [
+            html.Li(f"Date: {date_str}"),
+            html.Li(f"Temperature: Min temp - {min_temp}°C / Max Temp - {max_temp}°C"),
+            html.Li(f"Sunrise: {sunrise_dt.strftime('%H:%M')} UTC"),
+            html.Li(f"Sunset: {sunset_dt.strftime('%H:%M')} UTC"),
+            html.Li(f"Daylight Duration: {daylight_hrs} hours"),
+            html.Li(f"Rainfall: {rain_sum} mm") if rain_sum > 0 else None,
+            html.Li(f"Snowfall: {snow_sum} cm") if snow_sum > 0 else None,
+        ]
+        return html.Ul(children=[item for item in items if item is not None])
+    except Exception as e:
+        logger.error("Failed to retrieve weather data: %s", e, exc_info=True)
+        return f"Could not load weather data: {e}"
 
 
 app.layout = create_layout()

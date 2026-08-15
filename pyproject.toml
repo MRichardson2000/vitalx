@@ -8,8 +8,13 @@ dependencies = [
     "dash>=4.4.0",
     "dash-ag-grid>=35.2.0",
     "logger>=0.2.0",
+    "numpy>=2.2.6",
+    "openmeteo-requests>=1.7.5",
+    "pandas>=2.3.3",
     "psycopg2-binary>=2.9.12",
     "python-dotenv>=1.2.2",
+    "requests-cache>=1.3.3",
+    "retry-requests>=2.0.0",
     "sqlalchemy>=2.0.51",
 ]
 
