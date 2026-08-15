@@ -1,0 +1,1 @@
+select count(*) as total_days_walked from vitalx_walk 

@@ -5,18 +5,26 @@ import pandas as pd
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output, State
 from api.openmeteo.weather_api import get_weather_data
+from src.vitalx.extraction import export_tables_to_spreadsheets
 from src.vitalx.service import (
     did_sleep_eight_hours_last_night,
     get_latest_streak,
     get_total_sleep_time,
     get_total_steps,
+    get_total_days_walked,
+    get_total_calories_burnt,
+    get_total_miles_walked,
+    get_favourite_walk_location,
+    get_total_days_slept,
     insert_sleep,
     insert_walk,
     update_streak,
     validate_streak,
+    did_log_walk_today,
+    did_log_sleep_today
 )
 from src.vitalx.vitalx import VitalXSleep, VitalXWalk
-from vitalx.exceptions import DatabaseError
+from vitalx.exceptions import DatabaseError, DupeEntryPreventionError
 from vitalx.logger import get_logger, setup_logging
 from src.vitalx.quotes import get_random_quote
 
@@ -30,7 +38,7 @@ server = app.server
 def create_layout():
     return html.Div(
         children=[
-            html.H3(f"VitalX - Good Morning Mr Richardson - Have a blessed day!"),
+            html.H3("VitalX - Good Morning Mr Richardson - Have a blessed day!"),
             html.P(
                 f'Quote of the day: "{get_random_quote()}"',
                 style={
@@ -171,10 +179,27 @@ def toggle_sections(mode: str | None):
 @app.callback(
     Output("total_steps_output", "children"),
     Input("entry_mode", "value"),
+    Input("submit_walk", "n_clicks"),
 )
-def update_total_steps(mode: str | None):
+def update_walk_analytics(mode: str | None, _):
     if mode == "walk":
-        return f"Total steps: {get_total_steps()}"
+        steps = get_total_steps()
+        days = get_total_days_walked()
+        calories = get_total_calories_burnt()
+        miles = get_total_miles_walked()
+        fav_loc = get_favourite_walk_location()
+        
+        return [
+            html.Ul(
+                children=[
+                    html.Li(f"Total Days Walked: {days}"),
+                    html.Li(f"Total Steps: {steps:,}"),
+                    html.Li(f"Total Calories Burnt: {calories:,} kcal"),
+                    html.Li(f"Total Miles Walked: {miles} miles"),
+                    html.Li(f"Favourite Walk Location: {fav_loc}"),
+                ]
+            )
+        ]
     return ""
 
 
@@ -193,11 +218,20 @@ def update_streak_ui(mode: str | None, _):
 @app.callback(
     Output("total_sleep_output", "children"),
     Input("entry_mode", "value"),
+    Input("submit_sleep", "n_clicks"),
 )
-def update_total_sleep(mode: str | None):
+def update_sleep_analytics(mode: str | None, _):
     if mode == "sleep":
         hours, minutes = get_total_sleep_time()
-        return f"Total time slept: {hours}h {minutes}m"
+        days_slept = get_total_days_slept()
+        return [
+            html.Ul(
+                children=[
+                    html.Li(f"Total Days Slept: {days_slept}"),
+                    html.Li(f"Total Time Slept: {hours}h {minutes}m"),
+                ]
+            )
+        ]
     return ""
 
 
@@ -211,6 +245,9 @@ def update_total_sleep(mode: str | None):
     prevent_initial_call=True,
 )
 def submit_walk(n: int, location: str, steps: int, calories: int, miles: float):
+    if did_log_walk_today():
+        logger.error("You have already entered a walk today. Enter another one tomorrow")
+        return "You have already entered a walk today. Enter another one tomorrow"
     logger.info("Submission received for walk entry")
     walk = VitalXWalk(
         steps_walked=int(steps),
@@ -222,6 +259,11 @@ def submit_walk(n: int, location: str, steps: int, calories: int, miles: float):
     try:
         insert_walk(walk)
         logger.info("Walk entry saved successfully for location: %s", location)
+        try:
+            export_tables_to_spreadsheets()
+            logger.info("Automated end-of-day CSV export completed successfully.")
+        except Exception as e:
+            logger.error("Walk logged, but CSV export failed: %s", e)
         if valid:
             update_streak()
             logger.info(
@@ -247,6 +289,9 @@ def submit_walk(n: int, location: str, steps: int, calories: int, miles: float):
     prevent_initial_call=True,
 )
 def submit_sleep(n: int, hours: int, minutes: int, quality: str):
+    if did_log_sleep_today():
+        logger.error("You have already entered a sleep today. Enter another one tomorrow")
+        return "You have already entered a sleep today. Enter another one tomorrow"
     logger.info("Submission received for sleep entry.")
     sleep = VitalXSleep(
         hours_slept=int(hours),
@@ -320,7 +365,7 @@ app.layout = create_layout
 
 def main():
     logger.info("Initialising VitalX Dash Application Server on localhost:8050")
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=8050, debug=True)
 
 
 if __name__ == "__main__":

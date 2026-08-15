@@ -77,7 +77,7 @@ def view_sql_as_text() -> None:
     average_sleep_quality = load_sql_as_text(
         ANALYTICS_DBO, "get_good_and_bad_sleep.sql"
     )
-    data = load_sql_as_text(ANALYTICS_DBO, "get_total_miles_walked.sql")
+    data = load_sql_as_text(ANALYTICS_DBO, "get_favourite_walk_location.sql")
     print(fetch_result(data))
 
 
