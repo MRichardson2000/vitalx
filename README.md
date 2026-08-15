@@ -84,6 +84,14 @@ systemctl --user status vitalx.service
 but alltogether - systemctl --user daemon-reload && systemctl --user restart vitalx.service && systemctl --user status vitalx.service
 I have the above alias'd as rstVX
 
+If I need to back up my database run this command - pg_dump -U marcus -d vitalx -f ~/vitalx_backup_$(date +%Y%m%d).sql
+
+If I need to restore from a backup, run the extraction.py first so I have csv backups. Then run the below in the terminal
+
+psql -U marcus -d postgres -c "DROP DATABASE vitalx;"
+psql -U marcus -d postgres -c "CREATE DATABASE vitalx;"
+psql -U marcus -d vitalx -f ~/vitalx_backup.sql
+
 
 I'm terrified of house fires (No idea why) so it's not on a raspberry pi but I am going to look into a Hetzner Linux VM and run all my web app stuff from a VM instead. For now my work around is auto run solutions
 
