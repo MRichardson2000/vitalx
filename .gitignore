@@ -24,3 +24,6 @@ logs/
 
 # open meteocache
 *.cache.sqlite
+
+#todo.txt
+todo.txt

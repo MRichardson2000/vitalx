@@ -6,6 +6,7 @@ from retry_requests import retry
 from src.vitalx.logger import get_logger, setup_logging
 from src.vitalx.service import insert_weather
 from src.vitalx.vitalx import Weather
+from src.vitalx.exceptions import DatabaseError
 
 setup_logging()
 logger = get_logger(__name__)
@@ -87,6 +88,7 @@ def write_to_db() -> None:
         logger.info("Successfully fetched and inserted weather data into DB.")
     except Exception as e:
         logger.error("Failed to insert weather into DB: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to insert weather data due to {e}")
 
 
 def main():
