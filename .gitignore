@@ -1,4 +1,4 @@
-#
+# pycache
 __pycache__/
 .env
 .ruff_cache/
@@ -22,8 +22,9 @@ logs/
 # csv
 *.csv
 
-# open meteocache
-*.cache.sqlite
+#openmeteo cache
+/.cache.sqlite
 
-#todo.txt
-todo.txt
+#pg backups
+*.gz
+

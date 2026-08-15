@@ -3,10 +3,12 @@ import openmeteo_requests
 import pandas as pd
 import requests_cache
 from retry_requests import retry
+from src.vitalx.dbutils import load_sql_as_text, execute_query
 from src.vitalx.logger import get_logger, setup_logging
 from src.vitalx.service import insert_weather
 from src.vitalx.vitalx import Weather
 from src.vitalx.exceptions import DatabaseError
+from src.vitalx.utils import CREATES_DBO
 
 setup_logging()
 logger = get_logger(__name__)
@@ -64,7 +66,13 @@ def get_weather_data(
     return pd.DataFrame(daily_data, index=None)
 
 
+def ensure_table_exists() -> None:
+    weather_table = load_sql_as_text(CREATES_DBO, "create_weather_table.sql")
+    execute_query(weather_table)
+
+
 def write_to_db() -> None:
+    ensure_table_exists()
     df = get_weather_data()
     if df.empty:
         logger.warning("No weather data returned from API.")

@@ -1,0 +1,67 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: vitalx_db
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DB_NAME:-vitalx}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgrespassword}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-vitalx}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: vitalx_app
+    ports:
+      - "8050:8050"
+    environment:
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgrespassword}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-vitalx}
+      - UV_LINK_MODE=copy
+    volumes:
+      - .:/app
+      - /app/.venv
+      - ./exports:/app/exports
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  weather:
+    build: .
+    container_name: vitalx_weather
+    environment:
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgrespassword}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-vitalx}
+    volumes:
+      - .:/app
+      - /app/.venv
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "while true; do
+        uv run python -m api.openmeteo.weather_api;
+        sleep 86400;
+      done"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

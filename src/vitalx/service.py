@@ -151,6 +151,66 @@ def get_total_sleep_time(
         raise DatabaseError(f"Failed to get total sleep time due to: {e}")
 
 
+def get_total_days_walked() -> int:
+    try:
+        query = load_sql_as_text(ANALYTICS_DBO, "get_total_days_walked.sql")
+        rows = fetch_result(query)
+        logger.info("Successfully returned total days walked")
+        return int(rows[0]["total_days_walked"]) if rows else 0
+    except Exception as e:
+        logger.error("Failed to get total days walked: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get total days walked due to: {e}")
+
+
+def get_total_calories_burnt() -> int:
+    try:
+        query = load_sql_as_text(ANALYTICS_DBO, "get_total_calories_burnt.sql")
+        rows = fetch_result(query)
+        logger.info("Successfully returned total calories burnt")
+        return int(rows[0]["total_calories_burnt"]) if rows else 0
+    except Exception as e:
+        logger.error("Failed to get total calories burnt: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get total calories burnt due to: {e}")
+
+
+def get_total_miles_walked() -> float:
+    try:
+        query = load_sql_as_text(ANALYTICS_DBO, "get_total_miles_walked.sql")
+        rows = fetch_result(query)
+        logger.info("Successfully returned total miles walked")
+        return float(rows[0]["total_miles_walked"]) if rows else 0.0
+    except Exception as e:
+        logger.error("Failed to get total miles walked: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get total miles walked due to: {e}")
+
+
+def get_favourite_walk_location() -> str:
+    try:
+        query = load_sql_as_text(ANALYTICS_DBO, "get_favourite_walk_location.sql")
+        rows = fetch_result(query)
+        if not rows:
+            return "N/A"
+        row = rows[0]
+        logger.info("Successfully retrieved favourite walk location")
+        if isinstance(row, dict):
+            return str(row.get("walk_location", "N/A"))
+        return str(row[0]) if row[0] is not None else "N/A"
+    except Exception as e:
+        logger.error("Failed to get favourite walk location: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get favourite walk location due to: {e}")
+
+
+def get_total_days_slept() -> int:
+    try:
+        query = load_sql_as_text(ANALYTICS_DBO, "get_total_days_slept.sql")
+        rows = fetch_result(query)
+        logger.info("Successfully returned total days slept")
+        return int(rows[0]["total_days_slept"]) if rows else 0
+    except Exception as e:
+        logger.error("Failed to get total days slept: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get total days slept due to: {e}")
+
+
 ######################################################################
 # Walk History
 ######################################################################
@@ -194,6 +254,19 @@ def did_walk_today() -> bool:
     except Exception as e:
         logger.error("Failed to confirm if user walked today: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to confirm if user walked today due to: {e}")
+
+
+def did_log_walk_today() -> bool:
+    """Checks if a walk entry already exists in the database for today's date."""
+    try:
+        rows = fetch_result(
+            "select 1 from vitalx_walk where todays_date::date = :today",
+            {"today": datetime.now().date()},
+        )
+        return len(rows) > 0
+    except Exception as e:
+        logger.error("Failed to check daily walk status: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to check daily walk status due to: {e}")
 
 
 ######################################################################
@@ -313,8 +386,21 @@ def did_sleep_eight_hours_last_night(
         raise DatabaseError(f"Failed to get last walk date due to: {e}")
 
 
+def did_log_sleep_today() -> bool:
+    """Checks if a sleep entry already exists in the database for today's date."""
+    try:
+        rows = fetch_result(
+            "select 1 from vitalx_sleep where todays_date::date = :today",
+            {"today": datetime.now().date()},
+        )
+        return len(rows) > 0
+    except Exception as e:
+        logger.error("Failed to check daily sleep status: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to check daily sleep status due to: {e}")
+
+
 def main() -> None:
-    print(did_sleep_eight_hours_last_night())
+    print(did_log_sleep_today())
 
 
 if __name__ == "__main__":

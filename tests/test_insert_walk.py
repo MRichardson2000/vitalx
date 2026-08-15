@@ -7,6 +7,7 @@ def test_insert_walk(monkeypatch):
     walk = VitalXWalk(
         steps_walked=7100,
         calories_burnt=300,
+        miles_walked=4.6,
         walk_location="test_location",
         todays_date=datetime.now(),
     )
