@@ -6,3 +6,4 @@ ANALYTICS_DBO = DBO / "analytics"
 PROJECT_ROOT = (Path(__file__).parent.parent.parent).resolve()
 LOG_DIR = PROJECT_ROOT / "logs"
 LOG_FILE = LOG_DIR / "vitalx.log"
+EXPORTS_FOLDER = PROJECT_ROOT / "exports"

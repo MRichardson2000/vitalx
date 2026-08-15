@@ -14,3 +14,9 @@ class DatabaseError(VitalXError):
     """Raised when underlying database operations fail"""
 
     pass
+
+
+class CsvExportError(VitalXError):
+    """Raised when underlying csv export operations fail"""
+
+    pass

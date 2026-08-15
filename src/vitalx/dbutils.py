@@ -77,12 +77,13 @@ def view_sql_as_text() -> None:
     average_sleep_quality = load_sql_as_text(
         ANALYTICS_DBO, "get_good_and_bad_sleep.sql"
     )
-    print(fetch_result(walk_locations))
+    data = load_sql_as_text(ANALYTICS_DBO, "get_all_weather_data.sql")
+    print(fetch_result(data))
 
 
 def main() -> None:
-    create_schemas()
-    # view_sql_as_text()
+    # create_schemas()
+    view_sql_as_text()
 
 
 if __name__ == "__main__":
