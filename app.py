@@ -20,6 +20,7 @@ from src.vitalx.service import (
 from src.vitalx.vitalx import VitalXSleep, VitalXWalk
 from vitalx.exceptions import DatabaseError
 from vitalx.logger import get_logger, setup_logging
+from src.vitalx.quotes import get_random_quote
 
 
 setup_logging()
@@ -32,6 +33,15 @@ def create_layout():
     return html.Div(
         children=[
             html.H3(f"VitalX - Good Morning Mr Richardson - Have a blessed day!"),
+            html.P(
+                f'Quote of the day: "{get_random_quote()}"',
+                style={
+                    "fontStyle": "italic",
+                    "color": "#555",
+                    "marginBottom": "20px",
+                    "fontSize": "16px",
+                },
+            ),
             html.Div(
                 id="walk_totals_section",
                 children=[
@@ -307,7 +317,7 @@ def display_weather(mode: str | None):
         return f"Could not load weather data: {e}"
 
 
-app.layout = create_layout()
+app.layout = create_layout
 
 
 def main():
