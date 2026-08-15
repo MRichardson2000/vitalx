@@ -21,3 +21,6 @@ logs/
 
 # csv
 *.csv
+
+# open meteocache
+*.cache.sqlite
