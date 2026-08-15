@@ -71,7 +71,7 @@ def insert_sleep(sleep: VitalXSleep) -> None:
 
 def insert_weather(weather: Weather) -> None:
     sql = """
-            insert into weather (
+            insert into vitalx_weather (
                 todays_date,
                 temperature_2m_min,
                 temperature_2m_max,
@@ -277,7 +277,7 @@ def did_log_walk_today() -> bool:
 def get_latest_streak_entry() -> tuple[int, date] | None:
     try:
         rows = fetch_result(
-            "select * from vitalx_walk_streak order by todays_date desc limit 1"
+            "select * from vitalx_streak order by todays_date desc limit 1"
         )
         logger.debug("Successfully retrieved latest streak")
         if not rows:
@@ -297,7 +297,7 @@ def streak_row_exists_for_today() -> bool:
     today = datetime.now().date()
     try:
         rows = fetch_result(
-            "select todays_date from vitalx_walk_streak where todays_date::date = :today",
+            "select todays_date from vitalx_streak where todays_date::date = :today",
             {"today": today},
         )
         logger.debug("Successfully retrieved row from the database that matches today")
@@ -330,7 +330,7 @@ def update_streak() -> None:
             new_streak = 1
     try:
         execute_query(
-            "insert into vitalx_walk_streak (streak, todays_date) values (:streak, :todays_date)",
+            "insert into vitalx_streak (streak, todays_date) values (:streak, :todays_date)",
             {"streak": new_streak, "todays_date": datetime.now()},
         )
         logger.info("Streak updated: %d", new_streak)

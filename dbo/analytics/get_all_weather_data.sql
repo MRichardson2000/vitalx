@@ -1,1 +1,1 @@
-select * from weather
+select * from vitalx_weather

@@ -1,1 +1,1 @@
-select * from vitalx_walk_streak
+select * from vitalx_streak

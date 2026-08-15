@@ -11,7 +11,7 @@ setup_logging()
 logger = get_logger(__name__)
 
 
-BACKUP_DIR = os.path.expanduser("~/vitalx_db_backups")
+BACKUP_DIR = os.path.expanduser("~/Documents/VitalX/backups")
 EXPORT_QUERIES = [
     "get_all_vitalx_walk_data.sql",
     "get_all_vitalx_sleep_data.sql",
