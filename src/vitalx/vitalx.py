@@ -7,11 +7,13 @@ class VitalXWalk:
         self,
         steps_walked: int,
         calories_burnt: int,
+        miles_walked: float,
         walk_location: str | None = None,
         todays_date: datetime = datetime.now(),
     ) -> None:
         self.steps_walked = steps_walked
         self.calories_burnt = calories_burnt
+        self.miles_walked = miles_walked
         self.walk_location = walk_location
         self.todays_date = todays_date
 

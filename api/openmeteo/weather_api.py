@@ -3,6 +3,12 @@ import openmeteo_requests
 import pandas as pd
 import requests_cache
 from retry_requests import retry
+from src.vitalx.logger import get_logger, setup_logging
+from src.vitalx.service import insert_weather
+from src.vitalx.vitalx import Weather
+
+setup_logging()
+logger = get_logger(__name__)
 
 
 def get_weather_data(
@@ -31,15 +37,11 @@ def get_weather_data(
     }
     responses = openmeteo.weather_api(url, params)
     response = responses[0]
-    print(f"Coordinates: {response.Latitude()}°N {response.Longitude()}°E")
-    print(f"Elevation: {response.Elevation()} m asl")
-    print(f"Timezone: {response.Timezone()}{response.TimezoneAbbreviation()}")
-    print(f"Timezone difference to GMT+0: {response.UtcOffsetSeconds()}s")
     daily = response.Daily()
     daily_temperature_2m_min = daily.Variables(0).ValuesAsNumpy()  # type: ignore
     daily_temperature_2m_max = daily.Variables(1).ValuesAsNumpy()  # type: ignore
-    daily_sunrise = daily.Variables(2).ValuesAsNumpy()  # type: ignore
-    daily_sunset = daily.Variables(3).ValuesAsNumpy()  # type: ignore
+    daily_sunrise = daily.Variables(2).ValuesInt64AsNumpy() # type: ignore
+    daily_sunset = daily.Variables(3).ValuesInt64AsNumpy()  # type: ignore
     daily_daylight_duration = daily.Variables(4).ValuesAsNumpy()  # type: ignore
     daily_snowfall_duration = daily.Variables(5).ValuesAsNumpy()  # type: ignore
     daily_rain_sum = daily.Variables(6).ValuesAsNumpy()  # type: ignore
@@ -58,24 +60,37 @@ def get_weather_data(
     daily_data["daylight_duration"] = daily_daylight_duration  # type: ignore
     daily_data["snowfall_sum"] = daily_snowfall_duration  # type: ignore
     daily_data["rain_sum"] = daily_rain_sum  # type: ignore
-    daily_dataframe = pd.DataFrame(daily_data, index=None)
-    return daily_dataframe
+    return pd.DataFrame(daily_data, index=None)
 
 
-def clean_data() -> str:
+def write_to_db() -> None:
     df = get_weather_data()
-    df["date"] = df["date"].dt.strftime("%Y-%m-%d")
-    df["temperature_2m_min"] = df["temperature_2m_min"].round().astype(int)
-    df["temperature_2m_max"] = df["temperature_2m_max"].round().astype(int)
-    df["daylight_duration"] = df["daylight_duration"] / 3600
-    df["daylight_duration"] = df["daylight_duration"].round().astype(int)
-    df["snowfall_sum"] = df["snowfall_sum"].round().astype(int)
-    df["rain_sum"] = df["rain_sum"].round().astype(int)
-    return df.to_string(index=False)
+    if df.empty:
+        logger.warning("No weather data returned from API.")
+        return
+    row = df.iloc[0]
+    todays_date = pd.to_datetime(row["date"]).to_pydatetime()
+    sunrise = pd.to_datetime(row["sunrise"], unit="s", utc=True).to_pydatetime()
+    sunset = pd.to_datetime(row["sunset"], unit="s", utc=True).to_pydatetime()
+    weather_obj = Weather(
+        todays_date=todays_date,
+        temperature_2m_min=int(round(row["temperature_2m_min"])),
+        temperature_2m_max=int(round(row["temperature_2m_max"])),
+        sunrise=sunrise,
+        sunset=sunset,
+        daylight_duration=int(round(row["daylight_duration"] / 3600)),
+        snowfall_sum=int(round(row["snowfall_sum"])),
+        rain_sum=int(round(row["rain_sum"])),
+    )
+    try:
+        insert_weather(weather_obj)
+        logger.info("Successfully fetched and inserted weather data into DB.")
+    except Exception as e:
+        logger.error("Failed to insert weather into DB: %s", e, exc_info=True)
 
 
 def main():
-    print(clean_data())
+    write_to_db()
 
 
 if __name__ == "__main__":

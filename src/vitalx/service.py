@@ -23,14 +23,16 @@ def insert_walk(walk: VitalXWalk) -> None:
             insert into vitalx_walk (
                 steps_walked,
                 calories_burnt,
+                miles_walked,
                 walk_location,
                 todays_date
             )
-            values (:steps_walked, :calories_burnt, :walk_location, :todays_date)
+            values (:steps_walked, :calories_burnt, :miles_walked, :walk_location, :todays_date)
           """
     params: dict[str, Any] = {
         "steps_walked": walk.steps_walked,
         "calories_burnt": walk.calories_burnt,
+        "miles_walked": walk.miles_walked,
         "walk_location": walk.walk_location,
         "todays_date": walk.todays_date,
     }
@@ -79,7 +81,17 @@ def insert_weather(weather: Weather) -> None:
                 snowfall_sum,
                 rain_sum
             )
-            values (:todays_date, :temperature_2m_min, :temperature_2m_max, :sunrise, :sunset, :daylight_duration, :snowfall_sum, :rain_sum)
+            values (
+                :todays_date, 
+                :temperature_2m_min, 
+                :temperature_2m_max, 
+                :sunrise, 
+                :sunset, 
+                :daylight_duration, 
+                :snowfall_sum, 
+                :rain_sum
+            )
+            on conflict (todays_date) do nothing;
           """
     params: dict[str, Any] = {
         "todays_date": weather.todays_date,
