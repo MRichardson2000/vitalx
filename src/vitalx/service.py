@@ -71,7 +71,7 @@ def insert_sleep(sleep: VitalXSleep) -> None:
 
 def insert_weather(weather: Weather) -> None:
     sql = """
-            insert into vitalx_weather (
+            insert into weather (
                 todays_date,
                 temperature_2m_min,
                 temperature_2m_max,

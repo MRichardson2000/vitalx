@@ -1,6 +1,6 @@
 create table if not exists weather (
     id serial primary key,
-    todays_date timestamptz not null,
+    todays_date timestamptz not null unique,
     temperature_2m_min integer not null,
     temperature_2m_max integer not null,
     sunrise timestamptz not null,
