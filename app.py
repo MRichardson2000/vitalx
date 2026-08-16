@@ -5,6 +5,7 @@ import pandas as pd
 from dash import Dash, dcc, html
 from dash.dependencies import Input, Output, State
 from api.openmeteo.weather_api import get_weather_data
+from src.vitalx.pg_backup import perform_daily_pg_backup
 from src.vitalx.extraction import export_tables_to_spreadsheets
 from src.vitalx.service import (
     did_sleep_eight_hours_last_night,
@@ -259,22 +260,24 @@ def submit_walk(n: int, location: str, steps: int, calories: int, miles: float):
     try:
         insert_walk(walk)
         logger.info("Walk entry saved successfully for location: %s", location)
-        try:
-            export_tables_to_spreadsheets()
-            logger.info("Automated end-of-day CSV export completed successfully.")
-        except Exception as e:
-            logger.error("Walk logged, but CSV export failed: %s", e)
         if valid:
             update_streak()
             logger.info(
                 "Walk passed the streak validation threshold (%d steps).", steps
             )
-            return "Walk entry saved!"
+            streak_message = "Walk entry saved!"
         else:
             logger.warning(
                 "Walk failed streak validation (%d steps). Triggering reset.", steps
             )
-            return "Streak not updated due to failing validation"
+            streak_message = "Streak not updated due to failing validation"
+        try:
+            export_tables_to_spreadsheets()
+            perform_daily_pg_backup()
+            logger.info("Automated end-of-day CSV export and pg backup completed successfully.")
+        except Exception as e:
+            logger.error("Walk logged, but backup/export failed: %s", e)
+        return streak_message
     except Exception as e:
         logger.error("Failed to submit walk due to: %s", e)
         raise DatabaseError("Failed to submit walk entry")

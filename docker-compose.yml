@@ -33,6 +33,7 @@ services:
     volumes:
       - .:/app
       - /app/.venv
+      - ./backups:/app/backups
       - ./exports:/app/exports
       - ./logs:/app/logs
     depends_on:

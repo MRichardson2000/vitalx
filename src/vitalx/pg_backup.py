@@ -7,11 +7,12 @@ from src.vitalx.utils import ANALYTICS_DBO
 from vitalx.logger import get_logger, setup_logging
 from src.vitalx.exceptions import DatabaseError
 
+
 setup_logging()
 logger = get_logger(__name__)
 
 
-BACKUP_DIR = os.path.expanduser("~/Documents/VitalX/backups")
+BACKUP_DIR = "/app/backups"
 EXPORT_QUERIES = [
     "get_all_vitalx_walk_data.sql",
     "get_all_vitalx_sleep_data.sql",
@@ -21,7 +22,7 @@ EXPORT_QUERIES = [
 
 
 def format_sql_value(v: object) -> str:
-    """Escapes single quotes and formats data types safely for SQL INSERT statements."""
+    """Escapes single quotes and formats data types safely for sql insert statements."""
     if v is None:
         return "NULL"
     if isinstance(v, bool):
@@ -34,19 +35,21 @@ def format_sql_value(v: object) -> str:
     return f"'{escaped_str}'"
 
 
-def perform_weekly_pg_backup(retention_weeks: int = 4) -> None:
-    """Creates a compressed SQL dump using existing dbutils helpers."""
+def perform_daily_pg_backup(retention_days: int = 7) -> None:
     os.makedirs(BACKUP_DIR, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    backup_path = os.path.join(BACKUP_DIR, f"vitalx_backup_{timestamp}.sql.gz")
-    logger.info("Starting database backup to %s...", backup_path)
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    backup_path = os.path.join(BACKUP_DIR, f"vitalx_backup_{today_str}.sql.gz")
+    logger.info("Starting daily database backup to %s...", backup_path)
     try:
         with gzip.open(backup_path, "wt", encoding="utf-8") as gz_file:
-            gz_file.write(f"-- VitalX Database Dump: {timestamp}\n\n")
+            gz_file.write(f"-- VitalX Database Dump: {today_str}\n\n")
             for sql_file in EXPORT_QUERIES:
                 query_str = load_sql_as_text(ANALYTICS_DBO, sql_file)
                 rows = fetch_result(query_str)
-                table_name = sql_file.replace("get_all_", "").replace("_data.sql", "")
+                if sql_file == "get_all_vitalx_walk_streak_data.sql":
+                    table_name = "vitalx_streak"
+                else:
+                    table_name = sql_file.replace("get_all_", "").replace("_data.sql", "")
                 gz_file.write(f"-- Table: {table_name}\n")
                 for row in rows:
                     if not row:
@@ -58,9 +61,9 @@ def perform_weekly_pg_backup(retention_weeks: int = 4) -> None:
         if not os.path.exists(backup_path) or os.path.getsize(backup_path) < 50:
             raise RuntimeError("Backup verification failed: File missing or empty.")
         logger.info(
-            "Backup generated successfully (%d bytes).", os.path.getsize(backup_path)
+            "Daily backup generated successfully (%d bytes).", os.path.getsize(backup_path)
         )
-        cleanup_old_pg_backups(retention_weeks)
+        cleanup_old_pg_backups(retention_days)
     except Exception as e:
         logger.error("Database backup failed: %s", e, exc_info=True)
         if os.path.exists(backup_path):
@@ -68,10 +71,10 @@ def perform_weekly_pg_backup(retention_weeks: int = 4) -> None:
         raise DatabaseError(f"Database backup failed due to: {e}")
 
 
-def cleanup_old_pg_backups(retention_weeks: int) -> None:
-    """Purges compressed backup files older than N weeks."""
+def cleanup_old_pg_backups(retention_days: int) -> None:
+    """Purges compressed backup files older than N days."""
     now = datetime.now().timestamp()
-    retention_sec = retention_weeks * 7 * 86400
+    retention_sec = retention_days * 86400  
     for file_path in glob.glob(os.path.join(BACKUP_DIR, "*.sql.gz")):
         if (now - os.path.getmtime(file_path)) > retention_sec:
             try:
@@ -82,7 +85,7 @@ def cleanup_old_pg_backups(retention_weeks: int) -> None:
 
 
 def main() -> None:
-    perform_weekly_pg_backup()
+    perform_daily_pg_backup()
 
 
 if __name__ == "__main__":

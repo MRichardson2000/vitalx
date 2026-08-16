@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 TABLE_SQL_MAPPING = {
     "vitalx_walk": (ANALYTICS_DBO, "get_all_vitalx_walk_data.sql"),
     "vitalx_sleep": (ANALYTICS_DBO, "get_all_vitalx_sleep_data.sql"),
-    "vitalx_weather": (ANALYTICS_DBO, "get_all_weather_data.sql"),
+    "weather": (ANALYTICS_DBO, "get_all_weather_data.sql"),
     "vitalx_streak": (ANALYTICS_DBO, "get_all_vitalx_walk_streak_data.sql"),
 }
 

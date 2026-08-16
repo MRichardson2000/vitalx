@@ -1,30 +1,40 @@
 # VitalX - Web app!
 My web app for recording historical health data
 
+
 I have this configured on my linux laptop so it runs on boot. The idea being it opens up and I can quickly enter the details in from todays walk or last night's sleep. 
 
+
 Future improvements will include getting this onto a linux virtual machine. 
+
 
 ## How it works
 My docker compose yaml file is set to restart: unless-stopped for all services. When my laptop turns on and I log in, the docker services initialise and all of the containers spin up in the background. I've set chrome to sleep for 20 seconds before running the service to make sure it has enough time to bring everything up. There's also a health check to make sure the database is up and running so we don't run into a situation where the web app is up but it can't get the data from the database. 
 
+
 ## Docker Database
 The database is now on Docker not on my laptop. 
 
-# DO NOT RUN THIS SPECIFIC COMMAND - docker compose down -v
-This will remove the databases. If you do this you will need to recreate the databases and then repopulate them from a backup. If this happens, to fix this run the below commands one at a time:
 
+# DO NOT RUN THIS SPECIFIC COMMAND - docker compose down -v
+This will remove the databases. If you do this you will need to recreate the databases and then repopulate them from a backup. If this happens, to fix this you need to restore from one of the 2 backup options as you can see below. 
+
+
+## Backups
+I have configured this to automatically run daily backups of 2 kinds. CSV backups and a PG backup. the last entry of the day is the walk entry. After a walk is submitted it will create the backups and then I shut my laptop down. 
+
+
+# Restoring from back ups
+## CSV backups
+
+run the below to drop the database, create the database, create the schemas and then use the csv backup module to populate the databases via the csv
+
+docker exec -it vitalx_db psql -U postgres -c "DROP DATABASE vitalx;"
 docker exec -it vitalx_db psql -U postgres -c "CREATE DATABASE vitalx;"
 docker exec -it vitalx_app uv run python -c "from vitalx.dbutils import create_schemas; create_schemas()"
-
-if you're restoring from the 7 day pg backups run the below:
-zcat ~/vitalx_db_backups/vitalx_backup_*.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
-
-if you're restoring from the daily csv backups run the below:
 docker exec -it vitalx_app uv run python -m src.vitalx.csv_backup
 
-Verify this worked with the below
-
+Then verify with the below command
 docker exec -it vitalx_db psql -U postgres -d vitalx -c "
 SELECT 'vitalx_walk' AS table_name, COUNT(*) FROM vitalx_walk
 UNION ALL
@@ -39,32 +49,14 @@ and this to make sure the data is in the database
 
 docker exec -it vitalx_db psql -U postgres -d vitalx -c "SELECT * FROM vitalx_walk;"
 
-## Backups
-pg backups I run manually once a week until I get this on a virtual linux vm - reminder is on my phone
-csv backups run daily once the last entry of the day is inputted - this is automatic
+# PG Backups
 
-## Docker back ups pg 
-Once I have this on a virtual machine that never turns off, I will automate the back ups. This is difficult while i'm on a laptop that turns off. the cron job resets everytime the containers are brought back up so for now I'm going to run pg backups manually every Monday morning by running this command:
-
-docker exec -t vitalx_db pg_dump -U postgres vitalx | gzip > /home/marcus/Documents/VitalX/backups/vitalx_backup_$(date +%Y-%m-%d_%H%M%S).sql.gz
-
-This will create a backup in the backups folder of the root directory.
-
-Confirm visually or with this command:
-
-ls -lh /home/marcus/Documents/VitalX/backups
-
-Delete the old backup with this command - change the date so it matches:
-
-find /home/marcus/Documents/VitalX/backups -name "vitalx_backup_*.sql.gz" ! -name "vitalx_backup_2026-08-15_*.sql.gz" -delete
-
-## CSV backups
-run the below to create the database, create the schemas and then use the csv backup module to populate the databases via the csv
+run the below to drop the database, create the database, create the schemas and then use the pg backup module to populate the databases via the csv
 
 docker exec -it vitalx_db psql -U postgres -c "DROP DATABASE vitalx;"
 docker exec -it vitalx_db psql -U postgres -c "CREATE DATABASE vitalx;"
 docker exec -it vitalx_app uv run python -c "from vitalx.dbutils import create_schemas; create_schemas()"
-docker exec -it vitalx_app uv run python -m src.vitalx.csv_backup
+gunzip < backups/vitalx_backup_2026-08-16.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
 
 Then verify with the below command
 docker exec -it vitalx_db psql -U postgres -d vitalx -c "
