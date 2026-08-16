@@ -32,7 +32,7 @@ SELECT 'vitalx_sleep', COUNT(*) FROM vitalx_sleep
 UNION ALL
 SELECT 'vitalx_streak', COUNT(*) FROM vitalx_streak
 UNION ALL
-SELECT 'vitalx_weather', COUNT(*) FROM vitalx_weather;
+SELECT 'weather', COUNT(*) FROM weather;
 " 
 
 and this to make sure the data is in the database
@@ -74,7 +74,7 @@ SELECT 'vitalx_sleep', COUNT(*) FROM vitalx_sleep
 UNION ALL
 SELECT 'vitalx_streak', COUNT(*) FROM vitalx_streak
 UNION ALL
-SELECT 'vitalx_weather', COUNT(*) FROM vitalx_weather;
+SELECT 'weather', COUNT(*) FROM weather;
 " 
 
 and this to make sure the data is in the database
