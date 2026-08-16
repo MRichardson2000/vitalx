@@ -350,7 +350,7 @@ def display_weather(mode: str | None):
         sunset_dt = pd.to_datetime(row["sunset"], unit="s", utc=True)
         items = [
             html.Li(f"Date: {date_str}"),
-            html.Li(f"Temperature: Min temp - {min_temp}°C / Max Temp - {max_temp}°C"),
+            html.Li(f"Temperature: Min temp: {min_temp}°C / Max Temp: {max_temp}°C"),
             html.Li(f"Sunrise: {sunrise_dt.strftime('%H:%M')} UTC"),
             html.Li(f"Sunset: {sunset_dt.strftime('%H:%M')} UTC"),
             html.Li(f"Daylight Duration: {daylight_hrs} hours"),
