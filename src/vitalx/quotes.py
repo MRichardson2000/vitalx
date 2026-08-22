@@ -36,7 +36,7 @@ QUOTES: list[str] = [
     "You are made of stardust! And poo particles... Don't get ahead of yourself",
     "My business is none of my business, sometimes I don't give a shit what i've been up to",
     "My favourite people aren't courageous; They just weren't listening to all the crap and forgot to be scared",
-    "You are not a bad listender, ninety nine percent of people are fucking boring",
+    "You are not a bad listener, ninety nine percent of people are fucking boring",
     "There are days when you just have to cockroach the shit out of life - you got this king!",
     "Leaving is the loveliest form of arriving",
     "Everything you do or say will be used against you by your brain so stop giving a fuck",
