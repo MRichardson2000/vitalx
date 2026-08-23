@@ -76,7 +76,7 @@ def write_to_db() -> None:
     df = get_weather_data()
     if df.empty:
         logger.warning("No weather data returned from API.")
-        return
+        raise ValueError("No weather data returned from API.")
     row = df.iloc[0]
     todays_date = pd.to_datetime(row["date"]).to_pydatetime()
     sunrise = pd.to_datetime(row["sunrise"], unit="s", utc=True).to_pydatetime()

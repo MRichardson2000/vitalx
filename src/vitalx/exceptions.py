@@ -27,6 +27,7 @@ class CsvImportError(VitalXError):
 
     pass
 
+
 class DupeEntryPreventionError(VitalXError):
     """Raised when more than 1 entry is attempted to be written into the database in one day"""
 
