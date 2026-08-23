@@ -37,10 +37,9 @@ def import_spreadsheets_to_database() -> None:
                 )
                 df = pd.read_csv(latest_file)
                 if df.empty:
-                    logger.warning(
-                        "CSV file %s is empty. Skipping table %s.",
-                        latest_file,
-                        table_name,
+                    logger.error(
+                        "CSV file %s is empty. df is empty, failed to import spreadsheets",
+                        latest_file
                     )
                     raise ValueError(
                         "The dataframe is empty, check the contents of the csv"
