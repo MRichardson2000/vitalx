@@ -18,6 +18,25 @@ logger = get_logger(__name__)
 
 
 def insert_walk(walk: VitalXWalk) -> None:
+    """
+    Inserts a validated walk record into the database.
+
+    Args:
+
+        walk (VitalXWalk): the walk data transfer object which contains:
+        steps
+        calories
+        miles
+        location
+        todays date
+
+    Raises:
+
+        ValidationError if the step count is less than 6k
+
+        DatabaseError if the database execution fails. 
+
+    """
     validate_walk(walk)
     sql = """
             insert into vitalx_walk (
@@ -45,6 +64,23 @@ def insert_walk(walk: VitalXWalk) -> None:
 
 
 def insert_sleep(sleep: VitalXSleep) -> None:
+    """
+    Inserts a validated sleep record into the database
+
+    Args:
+
+        hours
+        minutes
+        sleep quality
+        todays date
+
+    Raises:
+
+        ValidationError if hours or minutes is blank on entry
+
+        DatabaseError if the database execution fails. 
+
+    """
     validate_sleep(sleep)
     sql = """
             insert into vitalx_sleep (
@@ -70,6 +106,25 @@ def insert_sleep(sleep: VitalXSleep) -> None:
 
 
 def insert_weather(weather: Weather) -> None:
+    """
+    Inserts a weather record into the database
+
+    Args:
+
+        todays_date,
+        temperature_2m_min,
+        temperature_2m_max,
+        sunrise,
+        sunset,
+        daylight_duration,
+        snowfall_sum,
+        rain_sum
+
+    Raises:
+
+        DatabaseError if the database execution fails. 
+
+    """
     sql = """
             insert into weather (
                 todays_date,
@@ -119,6 +174,23 @@ def insert_weather(weather: Weather) -> None:
 def get_total_steps(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_step_count.sql"
 ) -> int:
+    """
+    Retrieves the total step count from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_total_step_count.sql
+
+    Returns:
+
+        int: The total step count across all recorded entries.
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -132,6 +204,23 @@ def get_total_steps(
 def get_total_sleep_time(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_sleep_time.sql"
 ) -> tuple[int, int]:
+    """
+    Retrieves the total sleep time from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_total_sleep_time.sql
+
+    Returns:
+
+        tuple[int, int]: the total hours and minutes slept
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -149,6 +238,23 @@ def get_total_sleep_time(
 def get_total_days_walked(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_days_walked.sql"
 ) -> int:
+    """
+    Retrieves the total days walked from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_total_days_walked.sql
+
+    Returns:
+
+        int: the total number of days walked
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -162,6 +268,23 @@ def get_total_days_walked(
 def get_total_calories_burnt(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_calories_burnt.sql"
 ) -> int:
+    """
+    Retrieves the total days walked from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_total_days_walked.sql
+
+    Returns:
+
+        int: the total number of days walked
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -175,6 +298,23 @@ def get_total_calories_burnt(
 def get_total_miles_walked(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_miles_walked.sql"
 ) -> str:
+    """
+    Retrieves the total miles walked from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_total_miles_walked.sql
+
+    Returns:
+
+        str: the total number of days walked. it's a string so I can round the float digits to 1. e.g. 27.4
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -188,6 +328,23 @@ def get_total_miles_walked(
 def get_favourite_walk_location(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_favourite_walk_location.sql"
 ) -> str:
+    """
+    Retrieves the favourite walk location from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_favourite_walk_location.sql
+
+    Returns:
+
+        str: the favourite walk location
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -201,6 +358,23 @@ def get_favourite_walk_location(
 def get_total_days_slept(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_days_slept.sql"
 ) -> int:
+    """
+    Retrieves the total days slept from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_total_days_slept.sql
+
+    Returns:
+
+        int: the total number of days slept
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -219,6 +393,23 @@ def get_total_days_slept(
 def get_walk_history(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_all_vitalx_walk_data.sql"
 ) -> list[dict[str, Any]]:
+    """
+    Retrieves the full walk history from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_all_vitalx_walk_data.sql
+
+    Returns:
+
+        list[dict[str, Any]]: all walk data from the database
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         walk_history = fetch_result(sql)
@@ -232,6 +423,23 @@ def get_walk_history(
 def get_last_walk_date(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_last_walk_date.sql"
 ) -> date:
+    """
+    Retrieves the last walk date from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_last_walk_date.sql
+
+    Returns:
+
+        date: the last walk date
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -248,6 +456,23 @@ def get_last_walk_date(
 def did_walk_today(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_walk_day_is_today.sql"
 ) -> bool:
+    """
+    Checks the database to see if you walked today and returns a bool
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_walk_day_is_today.sql
+
+    Returns:
+
+        bool: true if walked today else false
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -261,6 +486,23 @@ def did_walk_today(
 def did_log_walk_today(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_daily_walk_status.sql"
 ) -> bool:
+    """
+    Checks the database to see if you logged the walked today and returns a bool
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_daily_walk_status.sql
+
+    Returns:
+
+        bool: true if you logged the walked today else false
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -279,6 +521,23 @@ def did_log_walk_today(
 def get_latest_streak_entry(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_latest_streak.sql"
 ) -> tuple[int, date]:
+    """
+    Gets the latest streak entry from the database
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_latest_streak.sql
+
+    Returns:
+
+        tuple[int, date]: streak value is int then the date
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -297,6 +556,23 @@ def get_latest_streak_entry(
 def streak_row_exists_for_today(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_streak_exists_today.sql"
 ) -> bool:
+    """
+    Checks if there's a streak row in the database for today
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_streak_exists_today.sql
+
+    Returns:
+
+        bool: true if there's a streak value in the database else false
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -314,6 +590,18 @@ def streak_row_exists_for_today(
 
 
 def update_streak() -> None:
+    """
+    Evaluates the walk history and writes a streak record to the database based on if the criteria is met
+
+    This function checks if a walk was recorded today and verifies the previous 
+    streak state. If a walk occurred on consecutive days, the streak is incremented. 
+    Otherwise, it resets to 1. If a streak entry already exists for today or no 
+    qualifying walk occurred, the operation exits early without modifying data. Then on next entry
+    when the streak is validated, it resets to 1 because the criteria won't match. 
+
+    Raises:
+        DatabaseError: for any database errors
+    """
     today = datetime.now().date()
     yesterday = today - timedelta(days=1)
     last_walk_date = get_last_walk_date()
@@ -342,6 +630,12 @@ def update_streak() -> None:
 
 
 def get_latest_streak() -> int:
+    """
+    Retrieves the latest streak from the database
+
+    Returns:
+        int: the most recent streak count or 1 if there's no previous streak exists (treating it as the first entry)
+    """
     entry = get_latest_streak_entry()
     if entry is None:
         return 1
@@ -349,7 +643,17 @@ def get_latest_streak() -> int:
 
 
 def validate_streak(steps_walked: int, required_steps: int = 6000) -> bool:
-    """Current minimum requirement for steps is 6k."""
+    """
+    Validates if the walked steps meets the minimum daily requirement. 
+
+    Args:
+        steps_walked (int): The total steps recorded for the day
+        required_steps (int): The minimum steps required to qualify for a streak.
+            the default is 6000 currently. 
+    
+    Returns:
+        bool: True if the steps meet or exceed the requirement, else False
+    """
     return steps_walked >= required_steps
 
 
@@ -361,6 +665,23 @@ def validate_streak(steps_walked: int, required_steps: int = 6000) -> bool:
 def get_sleep_history(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_all_vitalx_sleep_data.sql"
 ) -> list[dict[str, Any]]:
+    """
+    Retrieves the full sleep history from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_all_vitalx_sleep_data.sql
+
+    Returns:
+
+        list[dict[str, Any]]: all sleep data from the database
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         sleep_history = fetch_result(sql)
@@ -374,6 +695,23 @@ def get_sleep_history(
 def did_sleep_eight_hours_last_night(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_hours_slept_per_date.sql"
 ) -> bool:
+    """
+    Checks the latest sleep entry to see if you slept 8 hours last night. 
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_hours_slept_per_date.sql
+
+    Returns:
+
+        bool: true if time slept > 8 else False
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
@@ -389,6 +727,23 @@ def did_sleep_eight_hours_last_night(
 def did_log_sleep_today(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_daily_sleep_status.sql"
 ) -> bool:
+    """
+    Check the database to see if a sleep entry has been logged today
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics: 
+
+        file_name is get_daily_sleep_status.sql
+
+    Returns:
+
+        bool: True if logged sleep today else False
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
