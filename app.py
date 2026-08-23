@@ -22,10 +22,10 @@ from src.vitalx.service import (
     update_streak,
     validate_streak,
     did_log_walk_today,
-    did_log_sleep_today
+    did_log_sleep_today,
 )
 from src.vitalx.vitalx import VitalXSleep, VitalXWalk
-from vitalx.exceptions import DatabaseError, DupeEntryPreventionError
+from vitalx.exceptions import DatabaseError
 from vitalx.logger import get_logger, setup_logging
 from src.vitalx.quotes import get_random_quote
 
@@ -188,8 +188,7 @@ def update_walk_analytics(mode: str | None, _):
         days = get_total_days_walked()
         calories = get_total_calories_burnt()
         miles = get_total_miles_walked()
-        fav_loc = get_favourite_walk_location()
-        
+        favourite_location = get_favourite_walk_location()
         return [
             html.Ul(
                 children=[
@@ -197,7 +196,7 @@ def update_walk_analytics(mode: str | None, _):
                     html.Li(f"Total Steps: {steps:,}"),
                     html.Li(f"Total Calories Burnt: {calories:,} kcal"),
                     html.Li(f"Total Miles Walked: {miles} miles"),
-                    html.Li(f"Favourite Walk Location: {fav_loc}"),
+                    html.Li(f"Favourite Walk Location: {favourite_location}"),
                 ]
             )
         ]
@@ -247,7 +246,9 @@ def update_sleep_analytics(mode: str | None, _):
 )
 def submit_walk(n: int, location: str, steps: int, calories: int, miles: float):
     if did_log_walk_today():
-        logger.error("You have already entered a walk today. Enter another one tomorrow")
+        logger.error(
+            "You have already entered a walk today. Enter another one tomorrow"
+        )
         return "You have already entered a walk today. Enter another one tomorrow"
     logger.info("Submission received for walk entry")
     walk = VitalXWalk(
@@ -274,7 +275,9 @@ def submit_walk(n: int, location: str, steps: int, calories: int, miles: float):
         try:
             export_tables_to_spreadsheets()
             perform_daily_pg_backup()
-            logger.info("Automated end-of-day CSV export and pg backup completed successfully.")
+            logger.info(
+                "Automated end-of-day CSV export and pg backup completed successfully."
+            )
         except Exception as e:
             logger.error("Walk logged, but backup/export failed: %s", e)
         return streak_message
@@ -293,7 +296,9 @@ def submit_walk(n: int, location: str, steps: int, calories: int, miles: float):
 )
 def submit_sleep(n: int, hours: int, minutes: int, quality: str):
     if did_log_sleep_today():
-        logger.error("You have already entered a sleep today. Enter another one tomorrow")
+        logger.error(
+            "You have already entered a sleep today. Enter another one tomorrow"
+        )
         return "You have already entered a sleep today. Enter another one tomorrow"
     logger.info("Submission received for sleep entry.")
     sleep = VitalXSleep(

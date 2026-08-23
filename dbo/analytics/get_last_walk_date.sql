@@ -1,0 +1,1 @@
+select todays_date from vitalx_walk order by todays_date desc limit 1

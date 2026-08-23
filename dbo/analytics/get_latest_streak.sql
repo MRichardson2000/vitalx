@@ -1,0 +1,1 @@
+select * from vitalx_streak order by todays_date desc limit 1

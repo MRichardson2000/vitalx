@@ -1,4 +1,4 @@
-from .dbutils import execute_query, load_sql_as_text, fetch_result
+from vitalx.dbutils import execute_query, load_sql_as_text, fetch_result
 from vitalx.vitalx import VitalXWalk, VitalXSleep, Weather
 from vitalx.validation import validate_walk, validate_sleep
 from vitalx.exceptions import DatabaseError
@@ -38,7 +38,7 @@ def insert_walk(walk: VitalXWalk) -> None:
     }
     try:
         execute_query(sql, params)
-        logger.debug("Walk inserted into the database successfully")
+        logger.info("Walk inserted into the database successfully")
     except Exception as e:
         logger.error("Failed to insert walk into the database: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to insert walk due to: {e}")
@@ -63,7 +63,7 @@ def insert_sleep(sleep: VitalXSleep) -> None:
     }
     try:
         execute_query(sql, params)
-        logger.debug("Sleep inserted into the database successfully")
+        logger.info("Sleep inserted into the database successfully")
     except Exception as e:
         logger.error("Failed to insert sleep into the database: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to insert sleep due to: {e}")
@@ -105,7 +105,7 @@ def insert_weather(weather: Weather) -> None:
     }
     try:
         execute_query(sql, params)
-        logger.debug("Weather inserted into the database successfully")
+        logger.info("Weather inserted into the database successfully")
     except Exception as e:
         logger.error("Failed to insert Weather into the database: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to insert weather due to: {e}")
@@ -117,31 +117,26 @@ def insert_weather(weather: Weather) -> None:
 
 
 def get_total_steps(
-    file_path: Path = ANALYTICS_DBO,
-    file_name: str = "get_total_step_count.sql",
-    return_value: str = "total_steps",
-) -> int | None:
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_step_count.sql"
+) -> int:
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
         logger.debug("Successfully retrieved total steps")
-        return int(rows[0][return_value])
+        return rows[0]["total_steps"]
     except Exception as e:
         logger.error("Failed to retrieve total steps: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to retrieve total steps due to: {e}")
 
 
 def get_total_sleep_time(
-    file_path: Path = ANALYTICS_DBO,
-    file_name: str = "get_total_sleep_time.sql",
-    hours_value: str = "total_hours",
-    minutes_value: str = "total_minutes",
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_sleep_time.sql"
 ) -> tuple[int, int]:
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
-        total_hours = int(rows[0][hours_value])
-        total_minutes = int(rows[0][minutes_value])
+        total_hours = rows[0]["total_hours"]
+        total_minutes = rows[0]["total_minutes"]
         total_hours += total_minutes // 60
         total_minutes = total_minutes % 60
         logger.debug("Successfully retrieved total sleep time")
@@ -151,61 +146,66 @@ def get_total_sleep_time(
         raise DatabaseError(f"Failed to get total sleep time due to: {e}")
 
 
-def get_total_days_walked() -> int:
+def get_total_days_walked(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_days_walked.sql"
+) -> int:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        query = load_sql_as_text(ANALYTICS_DBO, "get_total_days_walked.sql")
-        rows = fetch_result(query)
-        logger.info("Successfully returned total days walked")
-        return int(rows[0]["total_days_walked"]) if rows else 0
+        rows = fetch_result(sql)
+        logger.debug("Successfully returned total days walked")
+        return rows[0]["total_days_walked"]
     except Exception as e:
         logger.error("Failed to get total days walked: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to get total days walked due to: {e}")
 
 
-def get_total_calories_burnt() -> int:
+def get_total_calories_burnt(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_calories_burnt.sql"
+) -> int:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        query = load_sql_as_text(ANALYTICS_DBO, "get_total_calories_burnt.sql")
-        rows = fetch_result(query)
-        logger.info("Successfully returned total calories burnt")
-        return int(rows[0]["total_calories_burnt"]) if rows else 0
+        rows = fetch_result(sql)
+        logger.debug("Successfully returned total calories burnt")
+        return rows[0]["total_calories_burnt"]
     except Exception as e:
         logger.error("Failed to get total calories burnt: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to get total calories burnt due to: {e}")
 
 
-def get_total_miles_walked() -> float:
+def get_total_miles_walked(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_miles_walked.sql"
+) -> str:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        query = load_sql_as_text(ANALYTICS_DBO, "get_total_miles_walked.sql")
-        rows = fetch_result(query)
-        logger.info("Successfully returned total miles walked")
-        return float(rows[0]["total_miles_walked"]) if rows else 0.0
+        rows = fetch_result(sql)
+        logger.debug("Successfully returned total miles walked")
+        return str(round(rows[0]["total_miles_walked"], 1))
     except Exception as e:
         logger.error("Failed to get total miles walked: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to get total miles walked due to: {e}")
 
 
-def get_favourite_walk_location() -> str:
+def get_favourite_walk_location(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_favourite_walk_location.sql"
+) -> str:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        query = load_sql_as_text(ANALYTICS_DBO, "get_favourite_walk_location.sql")
-        rows = fetch_result(query)
-        if not rows:
-            return "N/A"
-        row = rows[0]
-        logger.info("Successfully retrieved favourite walk location")
-        if isinstance(row, dict):
-            return str(row.get("walk_location", "N/A"))
-        return str(row[0]) if row[0] is not None else "N/A"
+        rows = fetch_result(sql)
+        logger.debug("Successfully retrieved favourite walk location")
+        return rows[0]["walk_location"]
     except Exception as e:
         logger.error("Failed to get favourite walk location: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to get favourite walk location due to: {e}")
 
 
-def get_total_days_slept() -> int:
+def get_total_days_slept(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_days_slept.sql"
+) -> int:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        query = load_sql_as_text(ANALYTICS_DBO, "get_total_days_slept.sql")
-        rows = fetch_result(query)
-        logger.info("Successfully returned total days slept")
-        return int(rows[0]["total_days_slept"]) if rows else 0
+        rows = fetch_result(sql)
+        logger.debug("Successfully returned total days slept")
+        return rows[0]["total_days_slept"]
     except Exception as e:
         logger.error("Failed to get total days slept: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to get total days slept due to: {e}")
@@ -216,9 +216,12 @@ def get_total_days_slept() -> int:
 ######################################################################
 
 
-def get_walk_history(query: str = "select * from vitalx_walk") -> list[dict[str, Any]]:
+def get_walk_history(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_all_vitalx_walk_data.sql"
+) -> list[dict[str, Any]]:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        walk_history = fetch_result(query)
+        walk_history = fetch_result(sql)
         logger.debug("Successfully retrieved walk history")
         return walk_history
     except Exception as e:
@@ -226,29 +229,28 @@ def get_walk_history(query: str = "select * from vitalx_walk") -> list[dict[str,
         raise DatabaseError(f"Failed to get walk history due to: {e}")
 
 
-def get_last_walk_date() -> date | None:
+def get_last_walk_date(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_last_walk_date.sql"
+) -> date:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        rows = fetch_result(
-            "select todays_date from vitalx_walk order by todays_date desc limit 1"
-        )
-        if not rows:
-            return None
+        rows = fetch_result(sql)
         logger.debug("Successfully retrieved last walk date")
-        raw = rows[0]["todays_date"]
-        if isinstance(raw, datetime):
-            return raw.date()
-        return datetime.fromisoformat(str(raw)).date()
+        raw_date = rows[0]["todays_date"]
+        if isinstance(raw_date, datetime):
+            return raw_date.date()
+        return datetime.fromisoformat(str(raw_date)).date()
     except Exception as e:
         logger.error("Failed to get last walk date: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to get last walk date due to: {e}")
 
 
-def did_walk_today() -> bool:
+def did_walk_today(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_walk_day_is_today.sql"
+) -> bool:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        rows = fetch_result(
-            "select todays_date from vitalx_walk where todays_date::date = :today",
-            {"today": datetime.now().date()},
-        )
+        rows = fetch_result(sql)
         logger.debug("successfully confirmed that user walked today")
         return len(rows) > 0
     except Exception as e:
@@ -256,13 +258,13 @@ def did_walk_today() -> bool:
         raise DatabaseError(f"Failed to confirm if user walked today due to: {e}")
 
 
-def did_log_walk_today() -> bool:
-    """Checks if a walk entry already exists in the database for today's date."""
+def did_log_walk_today(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_daily_walk_status.sql"
+) -> bool:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        rows = fetch_result(
-            "select 1 from vitalx_walk where todays_date::date = :today",
-            {"today": datetime.now().date()},
-        )
+        rows = fetch_result(sql)
+        logger.debug("Successfully checked daily walk status")
         return len(rows) > 0
     except Exception as e:
         logger.error("Failed to check daily walk status: %s", e, exc_info=True)
@@ -274,14 +276,13 @@ def did_log_walk_today() -> bool:
 ######################################################################
 
 
-def get_latest_streak_entry() -> tuple[int, date] | None:
+def get_latest_streak_entry(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_latest_streak.sql"
+) -> tuple[int, date]:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        rows = fetch_result(
-            "select * from vitalx_streak order by todays_date desc limit 1"
-        )
+        rows = fetch_result(sql)
         logger.debug("Successfully retrieved latest streak")
-        if not rows:
-            return None
         raw_date = rows[0]["todays_date"]
         if isinstance(raw_date, datetime):
             d = raw_date.date()
@@ -290,16 +291,15 @@ def get_latest_streak_entry() -> tuple[int, date] | None:
         return rows[0]["streak"], d
     except Exception as e:
         logger.error("Failed to get latest streak due to: %s", e, exc_info=True)
-        raise DatabaseError(f"Failed to get latest streak")
+        raise DatabaseError(f"Failed to get latest streak due to: {e}")
 
 
-def streak_row_exists_for_today() -> bool:
-    today = datetime.now().date()
+def streak_row_exists_for_today(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_streak_exists_today.sql"
+) -> bool:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        rows = fetch_result(
-            "select todays_date from vitalx_streak where todays_date::date = :today",
-            {"today": today},
-        )
+        rows = fetch_result(sql)
         logger.debug("Successfully retrieved row from the database that matches today")
         return len(rows) > 0
     except Exception as e:
@@ -308,7 +308,9 @@ def streak_row_exists_for_today() -> bool:
             e,
             exc_info=True,
         )
-        raise DatabaseError(f"Failed to confirm if streak row exists for today")
+        raise DatabaseError(
+            f"Failed to confirm if streak row exists for today due to: {e}"
+        )
 
 
 def update_streak() -> None:
@@ -343,12 +345,11 @@ def get_latest_streak() -> int:
     entry = get_latest_streak_entry()
     if entry is None:
         return 1
-    streak_value, _ = entry
-    return streak_value
+    return entry[0]
 
 
-def validate_streak(steps_walked: int, required_steps: int = 7000) -> bool:
-    """Current minimum requirement for steps is 7k. This checks for this."""
+def validate_streak(steps_walked: int, required_steps: int = 6000) -> bool:
+    """Current minimum requirement for steps is 6k."""
     return steps_walked >= required_steps
 
 
@@ -358,10 +359,11 @@ def validate_streak(steps_walked: int, required_steps: int = 7000) -> bool:
 
 
 def get_sleep_history(
-    query: str = "select * from vitalx_sleep",
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_all_vitalx_sleep_data.sql"
 ) -> list[dict[str, Any]]:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        sleep_history = fetch_result(query)
+        sleep_history = fetch_result(sql)
         logger.debug("Successfully retrieved sleep history")
         return sleep_history
     except Exception as e:
@@ -370,28 +372,28 @@ def get_sleep_history(
 
 
 def did_sleep_eight_hours_last_night(
-    query: str = "select hours_slept, todays_date from vitalx_sleep order by todays_date desc limit 1",
-    hours: str = "hours_slept",
-) -> bool | None:
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_hours_slept_per_date.sql"
+) -> bool:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        rows = fetch_result(query)
-        if not rows:
-            return None
+        rows = fetch_result(sql)
         logger.debug(
             "Sucessfully retrieved hours slept and todays date for latest sleep entry"
         )
-        return rows[0][hours] >= 8
+        return rows[0]["hours_slept"] >= 8
     except Exception as e:
         logger.error("Failed to retrieve hours slept: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to get last walk date due to: {e}")
 
 
-def did_log_sleep_today() -> bool:
-    """Checks if a sleep entry already exists in the database for today's date."""
+def did_log_sleep_today(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_daily_sleep_status.sql"
+) -> bool:
+    sql = load_sql_as_text(file_path, file_name)
     try:
-        rows = fetch_result(
-            "select 1 from vitalx_sleep where todays_date::date = :today",
-            {"today": datetime.now().date()},
+        rows = fetch_result(sql)
+        logger.debug(
+            "Successfully retrieved data from database to check if sleep entry has been recorded in the database today"
         )
         return len(rows) > 0
     except Exception as e:

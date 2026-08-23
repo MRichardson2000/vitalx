@@ -71,14 +71,8 @@ def create_schemas() -> None:
 
 
 def view_sql_as_text() -> None:
-    cals_burnt = load_sql_as_text(ANALYTICS_DBO, "get_total_calories_burnt.sql")
-    walk_locations = load_sql_as_text(ANALYTICS_DBO, "get_walk_locations.sql")
-    highest_streak = load_sql_as_text(ANALYTICS_DBO, "get_highest_streak.sql")
-    average_sleep_quality = load_sql_as_text(
-        ANALYTICS_DBO, "get_good_and_bad_sleep.sql"
-    )
-    data = load_sql_as_text(ANALYTICS_DBO, "get_favourite_walk_location.sql")
-    print(fetch_result(data))
+    sql = load_sql_as_text(ANALYTICS_DBO, ".sql")
+    print(fetch_result(sql))
 
 
 def main() -> None:
