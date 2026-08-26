@@ -108,6 +108,28 @@ docker compose up -d --build
 
 I'm terrified of house fires (No idea why) so it's not on a raspberry pi but I am going to look into a Hetzner Linux VM and run all my web app stuff from a VM instead. For now my work around is auto run solutions. I'll wait till I have a few web apps before proceeding with this so there's a few work arounds until I get to this point. 
 
+# setting up
+- make sure docker is installed
+- run uv sync
+- run uv pip install -e .
+- Make sure your .env file exists and looks like this
+DB_USER=postgres
+DB_PASSWORD=passwordhere
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=vitalx
+- Make sure there's no native postgres instance running:
+sudo lsof -i :5432 
+if this returns entries run this
+launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/homebrew.mxcl.postgresql*.plist 2>/dev/null
+then verify with the lsof command again to make sure nothings there
+- Run docker compose up -d to bring the containers up. 
+- Then if you're setting up a test environment do the below, otherwise follow the backup steps above
+- Then run this to create the tables:
+PYTHONPATH=src uv run -m vitalx.dbutils
+- then go to 127.0.0.1:8050 on a browser and put some test data in 
+
+
 Author
 Marcus Richardson
 
