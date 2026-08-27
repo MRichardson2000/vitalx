@@ -52,6 +52,10 @@ QUOTES: list[str] = [
 
 
 def get_random_quote() -> str:
+    """
+    I manually maintain the list of quotes from poems. insert them into the global QUOTES list in the quotes.py module
+    Then the python randomiser picks on at random. Dash is calling the app without () so the website is dynamic
+    """
     return random.choice(QUOTES)
 
 

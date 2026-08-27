@@ -4,6 +4,12 @@ from vitalx.utils import LOG_FILE, LOG_DIR
 
 
 def setup_logging(default_level: int = logging.INFO) -> None:
+    """
+    We're setting up 3 loggers, root logger, console handler and file handler. We're Establishing the format we want to
+    use across all log files. We keep 3 backups and then recycle over the old one. We use this in files that we run from -
+    (app.py) otherwise we use the helper method (get_logger)
+
+    """
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     log_format = logging.Formatter(
         "%(asctime)s [%(levelname)s] %(name)s:%(lineno)d - %(message)s",
