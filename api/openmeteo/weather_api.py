@@ -20,6 +20,10 @@ def get_weather_data(
     longitude: float = -1.95,
     forecast_days: int = 1,
 ) -> pd.DataFrame:
+    """
+    Retrives data from the openmeteo api service
+    Returns it as a DataFrame
+    """
     cache_session = requests_cache.CachedSession(".cache", expire_after=3600)
     retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
     openmeteo = openmeteo_requests.Client(session=retry_session)  # type: ignore
@@ -67,11 +71,19 @@ def get_weather_data(
 
 
 def ensure_table_exists() -> None:
+    """
+    To prevent potential issues with inserting into the database we create the weather table first if it doesn't exist
+    """
     weather_table = load_sql_as_text(CREATES_DBO, "create_weather_table.sql")
     execute_query(weather_table)
 
 
 def write_to_db() -> None:
+    """
+    Checks if the table exists, establishes the DataFrame, Formats the data,then tries to insert the weather into the database
+    Raises:
+        DatabaseError - For any database error actions
+    """
     ensure_table_exists()
     df = get_weather_data()
     if df.empty:

@@ -19,7 +19,16 @@ TABLE_PREFIX_MAPPING = {
 
 
 def import_spreadsheets_to_database() -> None:
-    """Reads the latest daily CSV exports and replaces database tables with them."""
+    """
+    Reads the latest daily CSV exports inserts the contents into the database.
+    The CSV files are in the exports folder. the Path is managed in utils - EXPORTSFOLDER, "File Name"
+    We use pandas df.tosql to upload the data into the databases
+
+    Raises:
+        FileNotFoundError - If any of the files don't exist
+        ValueError - If the DataFrame is empty
+        CsvImportError - If the import routine fails
+    """
     try:
         if not os.path.exists(EXPORTS_FOLDER):
             logger.warning(

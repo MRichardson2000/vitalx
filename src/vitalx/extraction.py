@@ -20,7 +20,13 @@ TABLE_SQL_MAPPING = {
 
 
 def export_tables_to_spreadsheets() -> None:
-    """Exports database tables to timestamped CSV's and removes old CSV exports."""
+    """
+    Exports database tables to timestamped CSV's and removes old CSV exports.
+    Retention is 7 days as per the csv's cleanup function
+    Raises:
+        VerificationError if the file name is missing or empty
+        CsvExportError for any export issues
+    """
     try:
         os.makedirs(EXPORTS_FOLDER, exist_ok=True)
         today_str = datetime.now().strftime("%Y-%m-%d")
@@ -45,12 +51,17 @@ def export_tables_to_spreadsheets() -> None:
 
 
 def cleanup_old_csvs(retention_days: int = 7) -> None:
-    """Deletes CSV files older than the specified retention period."""
-    now = datetime.now().timestamp()
+    """
+    Deletes CSV files older than the specified retention period.
+    It runs inside of the export function to auto clean up old csv's
+    Currently, retention is 7 days so I keep 7 days worth of exports as backup.
+    Raises:
+        OSError if there's an issue deleting the file.
+    """
     retention_sec = retention_days * 86400
     csv_files = glob.glob(os.path.join(EXPORTS_FOLDER, "*.csv"))
     for file_path in csv_files:
-        file_age = now - os.path.getmtime(file_path)
+        file_age = datetime.now().timestamp() - os.path.getmtime(file_path)
         if file_age > retention_sec:
             try:
                 os.remove(file_path)

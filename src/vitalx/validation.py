@@ -3,6 +3,13 @@ from vitalx.exceptions import ValidationError
 
 
 def validate_walk(walk: VitalXWalk) -> None:
+    """
+    Validation rules
+    Currently there is:
+    - steps can't be less than or = to 0
+    - Calories can't be less than or = to 0
+    - Walk location cannot be blank
+    """
     if walk.steps_walked <= 0:
         raise ValidationError(
             f"Steps walked must be greater than 0 but you entered: {walk.steps_walked}"
@@ -16,6 +23,12 @@ def validate_walk(walk: VitalXWalk) -> None:
 
 
 def validate_sleep(sleep: VitalXSleep) -> None:
+    """
+    Validation Rules
+    Currently there is:
+    - Hours cannot be blank
+    - Minutes cannot be blank
+    """
     if sleep.hours_slept is None:
         raise ValidationError("Hours slept cannot be blank")
 
