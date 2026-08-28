@@ -542,7 +542,6 @@ def get_latest_streak_entry(
     try:
         rows = fetch_result(sql)
         logger.debug("Successfully retrieved latest streak")
-        print(rows)
         raw_date = rows[0]["todays_date"]
         if isinstance(raw_date, datetime):
             d = raw_date.date()

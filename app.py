@@ -25,8 +25,8 @@ from src.vitalx.service import (
     did_log_sleep_today,
 )
 from src.vitalx.vitalx import VitalXSleep, VitalXWalk
-from vitalx.exceptions import DatabaseError
-from vitalx.logger import get_logger, setup_logging
+from src.vitalx.exceptions import DatabaseError
+from src.vitalx.logger import get_logger, setup_logging
 from src.vitalx.quotes import get_random_quote
 
 
