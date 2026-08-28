@@ -48,7 +48,7 @@ def import_spreadsheets_to_database() -> None:
                 if df.empty:
                     logger.error(
                         "CSV file %s is empty. df is empty, failed to import spreadsheets",
-                        latest_file
+                        latest_file,
                     )
                     raise ValueError(
                         "The dataframe is empty, check the contents of the csv"

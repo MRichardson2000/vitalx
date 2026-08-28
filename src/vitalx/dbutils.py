@@ -76,7 +76,7 @@ def load_sql_as_text(path: Path, file_name: str) -> str:
     except Exception as e:
         logger.error("Failed to read the .sql file as text: %s", e, exc_info=True)
         raise ReadSqlAsTextError(f"Failed to read the .sql file as text due to: {e}")
-            
+
 
 def create_schemas() -> None:
     walk = load_sql_as_text(CREATES_DBO, "create_vitalx_walk_table.sql")

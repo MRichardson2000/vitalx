@@ -33,6 +33,7 @@ class DupeEntryPreventionError(VitalXError):
 
     pass
 
+
 class ReadSqlAsTextError(VitalXError):
     """Raised when there is an issue reading a .sql file as text"""
 

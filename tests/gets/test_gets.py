@@ -1,0 +1,74 @@
+from vitalx.service import (
+    get_total_steps,
+    get_total_sleep_time,
+    get_walk_history,
+    get_last_walk_date,
+    get_latest_streak_entry,
+)
+from datetime import datetime
+import pytest
+
+
+@pytest.fixture
+def mock_fetch(monkeypatch):
+    class MockState:
+        return_value = []
+
+    def fake_fetch_result(query):
+        return MockState.return_value
+
+    monkeypatch.setattr("vitalx.service.fetch_result", fake_fetch_result)
+    return MockState
+
+
+def test_get_total_steps(mock_fetch):
+    mock_fetch.return_value = [{"total_steps": 4875}]
+    result = get_total_steps()
+    assert result == 4875
+
+
+def test_get_total_sleep(mock_fetch):
+    mock_fetch.return_value = [{"total_hours": 7, "total_minutes": 39}]
+    result = get_total_sleep_time()
+    assert result == (7, 39)
+
+
+def test_get_walk_history(mock_fetch):
+    mock_fetch.return_value = [
+        {
+            "steps_walked": 6100,
+            "calories_burnt": 304,
+            "walk_location": "test_location",
+            "todays_date": datetime.now(),
+        }
+    ]
+    result = get_walk_history()
+    assert result[0]["steps_walked"] == 6100
+    assert result[0]["calories_burnt"] == 304
+    assert result[0]["walk_location"] == "test_location"
+
+
+def test_get_last_walk_date(mock_fetch):
+    mock_fetch.return_value = [{"todays_date": datetime.now().date()}]
+    result = get_last_walk_date()
+    assert result == datetime.now().date()
+
+
+def test_get_latest_streak_entry(mock_fetch):
+    mock_fetch.return_value = [{"streak": 3, "todays_date": datetime.now().date()}]
+    result = get_latest_streak_entry()
+    assert result == (3, datetime.now().date())
+
+
+def test_get_sleep_history(mock_fetch):
+    sleep = [
+        {
+            "hours_slept": 8,
+            "minutes_slept": 32,
+            "good_sleep": True,
+            "todays_date": datetime.now().date(),
+        }
+    ]
+    mock_fetch.return_value = sleep
+    assert isinstance(sleep, list)
+    assert len(sleep) > 0
