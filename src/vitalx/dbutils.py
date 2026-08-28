@@ -99,8 +99,8 @@ def view_sql_as_text() -> None:
 
 
 def main() -> None:
-    # create_schemas()
-    view_sql_as_text()
+    create_schemas()
+    # view_sql_as_text()
 
 
 if __name__ == "__main__":

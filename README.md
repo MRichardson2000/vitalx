@@ -56,7 +56,10 @@ run the below to drop the database, create the database, create the schemas and 
 docker exec -it vitalx_db psql -U postgres -c "DROP DATABASE vitalx;"
 docker exec -it vitalx_db psql -U postgres -c "CREATE DATABASE vitalx;"
 docker exec -it vitalx_app uv run python -c "from vitalx.dbutils import create_schemas; create_schemas()"
-gunzip < backups/vitalx_backup_2026-08-16.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
+run the below on linux:
+gunzip < backups/vitalx_backup_2026-08-28.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
+run the below on mac:
+gunzip -c backups/vitalx_backup_2026-08-28.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
 
 Then verify with the below command
 docker exec -it vitalx_db psql -U postgres -d vitalx -c "
@@ -124,10 +127,10 @@ if this returns entries run this
 launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/homebrew.mxcl.postgresql*.plist 2>/dev/null
 then verify with the lsof command again to make sure nothings there
 - Run docker compose up -d to bring the containers up. 
-- Then if you're setting up a test environment do the below, otherwise follow the backup steps above
 - Then run this to create the tables:
 PYTHONPATH=src uv run -m vitalx.dbutils
-- then go to 127.0.0.1:8050 on a browser and put some test data in 
+- Then follow either the csv or pg backup steps above
+- then go to 127.0.0.1:8050 and you'll see your data
 
 
 Author
