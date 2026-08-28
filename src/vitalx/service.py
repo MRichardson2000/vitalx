@@ -34,7 +34,7 @@ def insert_walk(walk: VitalXWalk) -> None:
 
         ValidationError if the step count is less than 6k
 
-        DatabaseError if the database execution fails. 
+        DatabaseError if the database execution fails.
 
     """
     validate_walk(walk)
@@ -78,7 +78,7 @@ def insert_sleep(sleep: VitalXSleep) -> None:
 
         ValidationError if hours or minutes is blank on entry
 
-        DatabaseError if the database execution fails. 
+        DatabaseError if the database execution fails.
 
     """
     validate_sleep(sleep)
@@ -122,7 +122,7 @@ def insert_weather(weather: Weather) -> None:
 
     Raises:
 
-        DatabaseError if the database execution fails. 
+        DatabaseError if the database execution fails.
 
     """
     sql = """
@@ -179,7 +179,7 @@ def get_total_steps(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_total_step_count.sql
 
@@ -209,7 +209,7 @@ def get_total_sleep_time(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_total_sleep_time.sql
 
@@ -243,7 +243,7 @@ def get_total_days_walked(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_total_days_walked.sql
 
@@ -273,7 +273,7 @@ def get_total_calories_burnt(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_total_days_walked.sql
 
@@ -303,7 +303,7 @@ def get_total_miles_walked(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_total_miles_walked.sql
 
@@ -333,7 +333,7 @@ def get_favourite_walk_location(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_favourite_walk_location.sql
 
@@ -363,7 +363,7 @@ def get_total_days_slept(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_total_days_slept.sql
 
@@ -398,7 +398,7 @@ def get_walk_history(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_all_vitalx_walk_data.sql
 
@@ -428,7 +428,7 @@ def get_last_walk_date(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_last_walk_date.sql
 
@@ -461,7 +461,7 @@ def did_walk_today(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_walk_day_is_today.sql
 
@@ -491,7 +491,7 @@ def did_log_walk_today(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_daily_walk_status.sql
 
@@ -526,7 +526,7 @@ def get_latest_streak_entry(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_latest_streak.sql
 
@@ -561,7 +561,7 @@ def streak_row_exists_for_today(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_streak_exists_today.sql
 
@@ -593,11 +593,11 @@ def update_streak() -> None:
     """
     Evaluates the walk history and writes a streak record to the database based on if the criteria is met
 
-    This function checks if a walk was recorded today and verifies the previous 
-    streak state. If a walk occurred on consecutive days, the streak is incremented. 
-    Otherwise, it resets to 1. If a streak entry already exists for today or no 
+    This function checks if a walk was recorded today and verifies the previous
+    streak state. If a walk occurred on consecutive days, the streak is incremented.
+    Otherwise, it resets to 1. If a streak entry already exists for today or no
     qualifying walk occurred, the operation exits early without modifying data. Then on next entry
-    when the streak is validated, it resets to 1 because the criteria won't match. 
+    when the streak is validated, it resets to 1 because the criteria won't match.
 
     Raises:
         DatabaseError: for any database errors
@@ -644,13 +644,13 @@ def get_latest_streak() -> int:
 
 def validate_streak(steps_walked: int, required_steps: int = 6000) -> bool:
     """
-    Validates if the walked steps meets the minimum daily requirement. 
+    Validates if the walked steps meets the minimum daily requirement.
 
     Args:
         steps_walked (int): The total steps recorded for the day
         required_steps (int): The minimum steps required to qualify for a streak.
-            the default is 6000 currently. 
-    
+            the default is 6000 currently.
+
     Returns:
         bool: True if the steps meet or exceed the requirement, else False
     """
@@ -670,7 +670,7 @@ def get_sleep_history(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_all_vitalx_sleep_data.sql
 
@@ -696,11 +696,11 @@ def did_sleep_eight_hours_last_night(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_hours_slept_per_date.sql"
 ) -> bool:
     """
-    Checks the latest sleep entry to see if you slept 8 hours last night. 
+    Checks the latest sleep entry to see if you slept 8 hours last night.
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_hours_slept_per_date.sql
 
@@ -732,7 +732,7 @@ def did_log_sleep_today(
 
     Args:
 
-        file_path is managed in utils - dbo/analytics: 
+        file_path is managed in utils - dbo/analytics:
 
         file_name is get_daily_sleep_status.sql
 

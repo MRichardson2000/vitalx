@@ -41,7 +41,7 @@ def format_sql_value(v: object) -> str:
 
 
 def perform_daily_pg_backup() -> None:
-    '''Daily pg backups with 7 day retention'''
+    """Daily pg backups with 7 day retention"""
     os.makedirs(BACKUP_DIR, exist_ok=True)
     today_str = datetime.now().strftime("%Y-%m-%d")
     backup_path = os.path.join(BACKUP_DIR, f"vitalx_backup_{today_str}.sql.gz")
