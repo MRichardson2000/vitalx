@@ -1,5 +1,5 @@
-from vitalx.service import insert_walk, insert_sleep
-from vitalx.vitalx import VitalXWalk, VitalXSleep
+from vitalx.service import insert_walk, insert_sleep, insert_weather
+from vitalx.vitalx import VitalXWalk, VitalXSleep, Weather
 from datetime import datetime
 import pytest
 
@@ -41,3 +41,19 @@ def test_insert_sleep(fake_execute_query):
     assert fake_execute_query["params"]["hours_slept"] == 8
     assert fake_execute_query["params"]["minutes_slept"] == 0
     assert fake_execute_query["params"]["good_sleep"] == False
+
+
+def test_insert_weather(fake_execute_query):
+    weather = Weather(
+        10,
+        17,
+        datetime(2026, 8, 28, 4, 57, 0),
+        datetime(2026, 8, 28, 19, 34, 0),
+        13,
+        0,
+        4,
+        datetime.now()
+    )
+    insert_weather(weather)
+    assert "insert into weather" in fake_execute_query["sql"]
+    assert fake_execute_query["params"]

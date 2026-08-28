@@ -27,3 +27,6 @@ logs/
 
 #pg backups
 *.gz
+
+# vscode
+.vscode
