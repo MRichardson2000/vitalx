@@ -641,7 +641,7 @@ def get_latest_streak() -> int:
         int: the most recent streak count or 1 if there's no previous streak exists (treating it as the first entry)
     """
     entry = get_latest_streak_entry()
-    if entry is None:
+    if not entry:
         return 1
     return entry[0]
 

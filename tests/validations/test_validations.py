@@ -7,7 +7,7 @@ from vitalx.service import (
     did_walk_today,
     did_sleep_eight_hours_last_night,
     did_log_walk_today,
-    did_log_sleep_today
+    did_log_sleep_today,
 )
 
 
@@ -24,11 +24,7 @@ def mock_fetch(monkeypatch):
 
 
 def test_validate_streak(mock_fetch):
-    walk = VitalXWalk(
-        6800,
-        370,
-        6.1
-    )
+    walk = VitalXWalk(6800, 370, 6.1)
     mock_fetch.return_value = walk
     steps = walk.steps_walked
     validation = validate_streak(steps)
@@ -141,3 +137,9 @@ def test_did_log_sleep_today(mock_fetch):
     result = did_log_sleep_today()
     assert result
 
+
+def test_didnt_log_sleep_today(mock_fetch):
+    sleep = []
+    mock_fetch.return_value = sleep
+    result = did_log_sleep_today()
+    assert not result
