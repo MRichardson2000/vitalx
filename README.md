@@ -46,7 +46,7 @@ and this to make sure the data is in the database
 
 docker exec -it vitalx_db psql -U postgres -d vitalx -c "SELECT * FROM vitalx_walk;"
 
-# PG Backups
+## PG Backups
 
 run the below to drop the database, create the database, create the schemas and then use the pg backup module to populate the databases via the csv
 
