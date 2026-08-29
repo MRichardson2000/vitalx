@@ -477,7 +477,9 @@ def did_walk_today(
     try:
         rows = fetch_result(sql)
         logger.debug("successfully confirmed that user walked today")
-        return len(rows) > 0
+        if len(rows) > 0:
+            return True
+        return False
     except Exception as e:
         logger.error("Failed to confirm if user walked today: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to confirm if user walked today due to: {e}")
@@ -507,7 +509,9 @@ def did_log_walk_today(
     try:
         rows = fetch_result(sql)
         logger.debug("Successfully checked daily walk status")
-        return len(rows) > 0
+        if len(rows) > 0:
+            return True
+        return False
     except Exception as e:
         logger.error("Failed to check daily walk status: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to check daily walk status due to: {e}")
