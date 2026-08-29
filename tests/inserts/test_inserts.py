@@ -59,7 +59,7 @@ def test_insert_sleep(fake_execute_query):
     assert "insert into vitalx_sleep" in fake_execute_query["sql"]
     assert fake_execute_query["params"]["hours_slept"] == 8
     assert fake_execute_query["params"]["minutes_slept"] == 0
-    assert fake_execute_query["params"]["good_sleep"] == False
+    assert not fake_execute_query["params"]["good_sleep"]
 
 
 def test_fail_insert_sleep(fail_execute_query):
