@@ -4,6 +4,11 @@ from vitalx.service import (
     get_walk_history,
     get_last_walk_date,
     get_latest_streak_entry,
+    get_total_days_walked,
+    get_total_calories_burnt,
+    get_total_miles_walked,
+    get_favourite_walk_location,
+    get_total_days_slept
 )
 from datetime import datetime
 import pytest
@@ -33,6 +38,36 @@ def test_get_total_sleep(mock_fetch):
     assert result == (7, 39)
 
 
+def test_get_total_days_walked(mock_fetch):
+    mock_fetch.return_value = [{"total_days_walked": 43}]
+    result = get_total_days_walked()
+    assert result == 43
+
+
+def test_get_total_calories_burnt(mock_fetch):
+    mock_fetch.return_value = [{"total_calories_burnt": 327}]
+    result = get_total_calories_burnt()
+    assert result == 327
+
+
+def test_get_total_miles_walked(mock_fetch):
+    mock_fetch.return_value = [{"total_miles_walked": 6.1}]
+    result = get_total_miles_walked()
+    assert result == "6.1"
+
+
+def test_get_favourite_walk_location(mock_fetch):
+    mock_fetch.return_value = [{"walk_location": "test"}]
+    result = get_favourite_walk_location()
+    assert result == "test"
+
+
+def test_get_total_days_slept(mock_fetch):
+    mock_fetch.return_value = [{"total_days_slept": 42}]
+    result = get_total_days_slept()
+    assert result == 42
+
+
 def test_get_walk_history(mock_fetch):
     mock_fetch.return_value = [
         {
@@ -52,6 +87,10 @@ def test_get_last_walk_date(mock_fetch):
     mock_fetch.return_value = [{"todays_date": datetime.now().date()}]
     result = get_last_walk_date()
     assert result == datetime.now().date()
+
+
+def test_did_walk_today(mock_fetch):
+    mock_fetch.return_value = [{""}]
 
 
 def test_get_latest_streak_entry(mock_fetch):
