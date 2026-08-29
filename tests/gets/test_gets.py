@@ -8,7 +8,9 @@ from vitalx.service import (
     get_total_calories_burnt,
     get_total_miles_walked,
     get_favourite_walk_location,
-    get_total_days_slept
+    get_total_days_slept,
+    get_latest_streak,
+    get_sleep_history
 )
 from datetime import datetime
 import pytest
@@ -89,18 +91,8 @@ def test_get_last_walk_date(mock_fetch):
     assert result == datetime.now().date()
 
 
-def test_did_walk_today(mock_fetch):
-    mock_fetch.return_value = [{""}]
-
-
-def test_get_latest_streak_entry(mock_fetch):
-    mock_fetch.return_value = [{"streak": 3, "todays_date": datetime.now().date()}]
-    result = get_latest_streak_entry()
-    assert result == (3, datetime.now().date())
-
-
 def test_get_sleep_history(mock_fetch):
-    sleep = [
+    mock_fetch.return_value  = [
         {
             "hours_slept": 8,
             "minutes_slept": 32,
@@ -108,6 +100,18 @@ def test_get_sleep_history(mock_fetch):
             "todays_date": datetime.now().date(),
         }
     ]
-    mock_fetch.return_value = sleep
-    assert isinstance(sleep, list)
-    assert len(sleep) > 0
+    result = get_sleep_history()
+    assert isinstance(result, list)
+    assert len(result) > 0
+
+
+def test_get_latest_streak_entry(mock_fetch):
+    mock_fetch.return_value = [{"streak": 23, "todays_date": datetime.now().date()}]
+    result = get_latest_streak_entry()
+    assert result == (23, datetime.now().date())
+
+
+def test_get_latest_streak(mock_fetch):
+    mock_fetch.return_value = [{"streak": 23, "todays_date": datetime.now().date()}]
+    result = get_latest_streak()
+    assert result == 23

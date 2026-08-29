@@ -1,6 +1,6 @@
-from vitalx.service import insert_walk, insert_sleep, insert_weather
+from vitalx.service import insert_walk, insert_sleep, insert_weather, update_streak
 from vitalx.vitalx import VitalXWalk, VitalXSleep, Weather
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytest
 
 
@@ -57,3 +57,23 @@ def test_insert_weather(fake_execute_query):
     insert_weather(weather)
     assert "insert into weather" in fake_execute_query["sql"]
     assert fake_execute_query["params"]
+
+
+def test_update_streak_increments(monkeypatch, fake_execute_query):
+    today = datetime.now().date()
+    yesterday = today - timedelta(days=1)
+    monkeypatch.setattr("vitalx.service.get_last_walk_date", lambda: today)
+    monkeypatch.setattr("vitalx.service.streak_row_exists_for_today", lambda: False)
+    monkeypatch.setattr("vitalx.service.get_latest_streak_entry", lambda: (5, yesterday))
+    update_streak()
+    assert fake_execute_query["params"]["streak"] == 6
+
+
+def test_update_streak_resets(monkeypatch, fake_execute_query):
+    today = datetime.now().date()
+    two_days_ago = today - timedelta(days=2)
+    monkeypatch.setattr("vitalx.service.get_last_walk_date", lambda: today)
+    monkeypatch.setattr("vitalx.service.streak_row_exists_for_today", lambda: False)
+    monkeypatch.setattr("vitalx.service.get_latest_streak_entry", lambda: (5, two_days_ago))
+    update_streak()
+    assert fake_execute_query["params"]["streak"] == 1
