@@ -135,8 +135,3 @@ PYTHONPATH=src uv run -m vitalx.dbutils
 
 Author
 Marcus Richardson
-
-
-
-
-

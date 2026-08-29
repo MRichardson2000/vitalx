@@ -1,6 +1,6 @@
 from datetime import datetime
 import pytest
-from vitalx.vitalx import VitalXWalk, VitalXSleep
+from vitalx.vitalx import VitalXWalk
 from vitalx.service import (
     validate_streak,
     streak_row_exists_for_today,
