@@ -62,10 +62,12 @@ def skyrim_journey(
     check_date = datetime.now().date()
     if state["last_checked_date"] != check_date.isoformat():
         for x in walk_history:
-            if (
-                datetime.strptime(x["todays_date"], "%Y-%m-%d %H:%M:%S.%f").date()
-                == check_date
-            ):
+            walk_date = x["todays_date"]
+            if isinstance(walk_date, str):
+                walk_date = datetime.strptime(walk_date, "%Y-%m-%d %H:%M:%S.%f").date()
+            elif isinstance(walk_date, datetime):
+                walk_date = walk_date.date()
+            if walk_date == check_date:
                 current_steps += x["steps_walked"]
         state["steps"] += current_steps
         state["last_checked_date"] = check_date.isoformat()
