@@ -1,5 +1,5 @@
-import sys
 from pathlib import Path
+import sys
 
 sys.path.append(str(Path(__file__).parent / "src"))
 import pandas as pd
@@ -29,11 +29,12 @@ from src.vitalx.vitalx import VitalXSleep, VitalXWalk
 from src.vitalx.exceptions import DatabaseError
 from src.vitalx.logger import get_logger, setup_logging
 from src.vitalx.quotes import get_random_quote
+from skyrim.skyrim import skyrim_journey
 
 
 setup_logging()
 logger = get_logger(__name__)
-app = Dash(__name__, prevent_initial_callbacks=False)
+app = Dash(__name__, prevent_initial_callbacks=False, suppress_callback_exceptions=True)
 server = app.server
 
 
@@ -131,6 +132,18 @@ def create_layout():
                 children=[
                     html.H4("Today's Weather"),
                     html.Div(id="Weather"),
+                ],
+                style={
+                    "marginBottom": "20px",
+                    "padding": "10px",
+                    "border": "1px solid #ccc",
+                },
+            ),
+            html.Div(
+                id="skyrim_section",
+                children=[
+                    html.H4("The Dragonborn ⚔️"),
+                    html.Div(id="skyrim_journey_output"),
                 ],
                 style={
                     "marginBottom": "20px",
@@ -367,6 +380,24 @@ def display_weather(mode: str | None):
     except Exception as e:
         logger.error("Failed to retrieve weather data: %s", e, exc_info=True)
         return f"Could not load weather data: {e}"
+
+
+@app.callback(
+    Output("skyrim_journey_output", "children"),
+    Input("entry_mode", "value"),
+    Input("submit_walk", "n_clicks"),
+)
+def display_skyrim_journey(mode: str | None, _):
+    try:
+        origin, destination, remaining, loops = skyrim_journey()
+        return [
+            html.P(f"Traveling from {origin.title()} to {destination.title()}"),
+            html.P(f"Steps remaining until arrival: {remaining:,}"),
+            html.P(f"Times You've walked around Skyrim: {loops:,}"),
+        ]
+    except Exception as e:
+        logger.error("Failed to retrieve skyrim journey data: %s", e, exc_info=True)
+        return f"Could not load Skyrim journey: {e}"
 
 
 app.layout = create_layout
