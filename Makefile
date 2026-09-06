@@ -14,3 +14,6 @@ build:
 
 prep:
 	prek run --all-files
+
+test:
+	uv run pytest
