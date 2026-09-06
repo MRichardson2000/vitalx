@@ -14,15 +14,15 @@ STATE_FILE = (Path(__file__).parent / "state.json").resolve()
 
 
 SKYRIM_CITIES = [
-    {"id": 0, "from": "whiterun", "to": "falkreath", "steps_required": 55000},
-    {"id": 1, "from": "falkreath", "to": "markarth", "steps_required": 140000},
-    {"id": 2, "from": "markarth", "to": "solitude", "steps_required": 250000},
-    {"id": 3, "from": "solitude", "to": "morthal", "steps_required": 295000},
-    {"id": 4, "from": "morthal", "to": "dawnstar", "steps_required": 55000},
-    {"id": 5, "from": "dawnstar", "to": "winterhold", "steps_required": 80000},
-    {"id": 6, "from": "winterhold", "to": "windhelm", "steps_required": 65000},
-    {"id": 7, "from": "windhelm", "to": "riften", "steps_required": 120000},
-    {"id": 8, "from": "riften", "to": "whiterun", "steps_required": 135000},
+    {"id": 0, "from": "whiterun", "to": "falkreath", "steps_required": 22000},
+    {"id": 1, "from": "falkreath", "to": "markarth", "steps_required": 45000},
+    {"id": 2, "from": "markarth", "to": "solitude", "steps_required": 50000},
+    {"id": 3, "from": "solitude", "to": "morthal", "steps_required": 25000},
+    {"id": 4, "from": "morthal", "to": "dawnstar", "steps_required": 28000},
+    {"id": 5, "from": "dawnstar", "to": "winterhold", "steps_required": 32000},
+    {"id": 6, "from": "winterhold", "to": "windhelm", "steps_required": 26000},
+    {"id": 7, "from": "windhelm", "to": "riften", "steps_required": 38000},
+    {"id": 8, "from": "riften", "to": "whiterun", "steps_required": 42000},
 ]
 
 
