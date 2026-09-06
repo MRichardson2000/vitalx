@@ -33,3 +33,6 @@ logs/
 
 # vscode
 .vscode
+
+#skyrim state file
+skyrim/state.json
