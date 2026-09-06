@@ -32,6 +32,23 @@ SKYRIM_CITIES = [
 
 
 def load_state() -> dict[str, Any]:
+    """
+    Load the application state from state.json.
+
+    Attempts to read and parse the state file. If the file does not exist
+    or contains invalid json, it generates, saves, and returns a default
+    state dictionary.
+
+    Returns:
+        dict[str, Any]: The application state containing the following keys:
+            - id_count (int): Current id counter to indicate which city you're in.
+            - steps (int): Total recorded steps.
+            - last_checked_date (str | None): The last recorded check-in date.
+            - loop_times (int): Number of loops around Skryim.
+
+    Side Effects:
+        Creates a new `state.json` file on disk if one does not already exist.
+    """
     if STATE_FILE.exists():
         try:
             with open(STATE_FILE, "r") as f:
@@ -49,6 +66,7 @@ def load_state() -> dict[str, Any]:
 
 
 def save_state(state: dict[str, Any]) -> None:
+    """Opens the state json file in write mode and writes in the state passed in from load_state()"""
     with open(STATE_FILE, "w") as f:
         json.dump(state, f, indent=4)
 
@@ -56,6 +74,27 @@ def save_state(state: dict[str, Any]) -> None:
 def skyrim_journey(
     locations: list[dict[str, Any]] = SKYRIM_CITIES,
 ) -> tuple[str, str, int, int]:
+    """Process walk history, update state, and advance the Skyrim journey.
+
+    Loads the current application state, pulls today's walk history, and
+    adds any new steps if they haven't been recorded for today yet. It then
+    advances the user along the Skyrim city route based on total accumulated
+    steps, looping back to the start if the final destination is reached.
+
+    Args:
+        locations (list[dict[str, Any]]): A list of dictionary objects representing
+            the path between cities. Defaults to `SKYRIM_CITIES`.
+
+    Returns:
+        tuple[str, str, int, int]: A tuple containing:
+            - Origin city name (str)
+            - Destination city name (str)
+            - Remaining steps needed to reach the destination (int)
+            - Number of full map loops completed (int)
+
+    Side Effects:
+        Updates and saves the application state to disk via `save_state()`.
+    """
     state = load_state()
     current_steps = 0
     walk_history = get_walk_history()
