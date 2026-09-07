@@ -275,6 +275,7 @@ def submit_walk(n: int, location: str, steps: int, calories: int, miles: float):
     try:
         insert_walk(walk)
         logger.info("Walk entry saved successfully for location: %s", location)
+        skyrim_journey()
         if valid:
             update_streak()
             logger.info(
