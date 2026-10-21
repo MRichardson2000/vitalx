@@ -2,7 +2,7 @@
 My web app for recording historical health data. I created this because I wanted to push myself to go outside more and be healthier. I thought it would add an element of excitement and it did just that! It's incredible seeing the data accumulate daily. I can't wait to see my stats in 10 years!
 
 
-I have this configured on my linux laptop so it runs on boot. The idea being it opens up and I can quickly enter the details in from todays walk or last night's sleep. Future goals are to get this onto a raspberry pi. I'll always be looking into networking options so I can access it from my phone from anywhere. 
+I have this configured on my linux laptop so it runs on boot. The idea being it opens up and I can quickly enter the details in from todays walk or last night's sleep. Future goals are to get this onto a raspberry pi. I'll also be looking into networking options so I can access it from my phone from anywhere. 
 
 
 ## How it works
@@ -54,7 +54,7 @@ docker exec -it vitalx_db psql -U postgres -c "DROP DATABASE vitalx;"
 docker exec -it vitalx_db psql -U postgres -c "CREATE DATABASE vitalx;"
 docker exec -it vitalx_app uv run python -c "from vitalx.dbutils import create_schemas; create_schemas()"
 run the below on linux (Change the date in the file name to today):
-gunzip < backups/vitalx_backup_2026-08-28.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
+gunzip < backups/vitalx_backup_2026-10-11.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
 run the below on mac (Change the date in the file name to today):
 gunzip -c backups/vitalx_backup_2026-08-28.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
 

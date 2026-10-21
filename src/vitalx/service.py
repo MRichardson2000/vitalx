@@ -453,6 +453,36 @@ def get_last_walk_date(
         raise DatabaseError(f"Failed to get last walk date due to: {e}")
 
 
+def get_todays_steps(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_todays_steps.sql"
+) -> int:
+    """
+    Retrieves todays step count from the database.
+
+    Args:
+
+        file_path is managed in utils - dbo/analytics:
+
+        file_name is get_todays_steps.sql
+
+    Returns:
+
+        steps: todays step count
+
+    Raises:
+
+        DatabaseError for any database issues
+    """
+    sql = load_sql_as_text(file_path, file_name)
+    try:
+        rows = fetch_result(sql)
+        logger.debug("Successfully retrieved todays step count")
+        return rows[0]["steps_walked"]
+    except Exception as e:
+        logger.error("Failed to get todays step count: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get ltodays step count due to: {e}")
+
+
 def did_walk_today(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_walk_day_is_today.sql"
 ) -> bool:

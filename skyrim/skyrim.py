@@ -1,4 +1,4 @@
-from vitalx.service import get_walk_history
+from vitalx.service import get_todays_steps
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -59,6 +59,7 @@ def load_state() -> dict[str, Any]:
         "id_count": 0,
         "steps": 0,
         "last_checked_date": None,
+        "last_todays_steps": 0,
         "loop_times": 0,
     }
     save_state(default_state)
@@ -96,38 +97,36 @@ def skyrim_journey(
         Updates and saves the application state to disk via `save_state()`.
     """
     state = load_state()
-    current_steps = 0
-    walk_history = get_walk_history()
-    check_date = datetime.now().date()
-    if state["last_checked_date"] != check_date.isoformat():
-        for x in walk_history:
-            walk_date = x["todays_date"]
-            if isinstance(walk_date, str):
-                walk_date = datetime.strptime(walk_date, "%Y-%m-%d %H:%M:%S.%f").date()
-            elif isinstance(walk_date, datetime):
-                walk_date = walk_date.date()
-            if walk_date == check_date:
-                current_steps += x["steps_walked"]
-        state["steps"] += current_steps
-        state["last_checked_date"] = check_date.isoformat()
-    current_location = locations[state["id_count"]]
-    required_steps = current_location["steps_required"]
-    while state["steps"] >= required_steps:
-        state["steps"] -= required_steps
-        state["id_count"] += 1
-        if state["id_count"] == len(locations):
-            state["id_count"] = 0
-            state["loop_times"] += 1
-        current_location = locations[state["id_count"]]
-        required_steps = current_location["steps_required"]
-    remaining = required_steps - state["steps"]
-    save_state(state)
-    return (
-        current_location["from"],
-        current_location["to"],
-        remaining,
-        state["loop_times"],
+    today = datetime.now().date().isoformat()
+    current_steps = state["steps"]
+    current_id = state["id_count"] % len(locations)
+    loop_times = state["loop_times"]
+    last_checked_date = state["last_checked_date"]
+    last_todays_steps = state["last_todays_steps"] or 0
+    latest_db_steps = max(0, get_todays_steps())
+    if last_checked_date != today:
+        new_steps = latest_db_steps
+    else:
+        new_steps = max(0, latest_db_steps - last_todays_steps)
+    current_steps += new_steps
+    while current_steps >= locations[current_id]["steps_required"]:
+        current_steps -= locations[current_id]["steps_required"]
+        current_id += 1
+        if current_id >= len(locations):
+            current_id = 0
+            loop_times += 1
+    save_state(
+        {
+            "id_count": current_id,
+            "steps": current_steps,
+            "last_checked_date": today,
+            "last_todays_steps": latest_db_steps,
+            "loop_times": loop_times,
+        }
     )
+    current_leg = locations[current_id]
+    steps_remaining = current_leg["steps_required"] - current_steps
+    return (current_leg["from"], current_leg["to"], steps_remaining, loop_times)
 
 
 def main() -> None:
