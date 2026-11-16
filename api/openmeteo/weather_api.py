@@ -21,7 +21,7 @@ def get_weather_data(
     forecast_days: int = 1,
 ) -> pd.DataFrame:
     """
-    Retrives data from the openmeteo api service
+    Retrieves data from the openmeteo api service
     Returns it as a DataFrame
     """
     cache_session = requests_cache.CachedSession(".cache", expire_after=3600)

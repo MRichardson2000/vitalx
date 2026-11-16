@@ -166,19 +166,6 @@ def insert_weather(weather: Weather) -> None:
         raise DatabaseError(f"Failed to insert weather due to: {e}")
 
 
-def backfill_missing_miles():
-    query = """
-        UPDATE vitalx_walk
-        SET miles_walked = ROUND((steps_walked / 1315.0)::numeric, 1)
-        WHERE miles_walked = 0;
-    """
-    try:
-        execute_query(query)
-        print("Successfully backfilled missing miles!")
-    except Exception as e:
-        print(f"Backfill failed: {e}")
-
-
 ######################################################################
 # Analytics
 ######################################################################
@@ -801,12 +788,3 @@ def did_log_sleep_today(
     except Exception as e:
         logger.error("Failed to check daily sleep status: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to check daily sleep status due to: {e}")
-
-
-def main() -> None:
-    # print(get_latest_streak_entry())
-    backfill_missing_miles()
-
-
-if __name__ == "__main__":
-    main()
