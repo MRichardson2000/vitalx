@@ -48,6 +48,7 @@ def test_fail_insert_walk(fail_execute_query):
     mock_walk = MagicMock()
     mock_walk.steps_walked = 7000
     mock_walk.calories_burnt = 1
+    mock_walk.miles_walked = 5.2
     with pytest.raises(DatabaseError) as exc_info:
         insert_walk(mock_walk)
     assert "Failed to insert walk due to" in str(exc_info.value)

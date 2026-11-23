@@ -26,7 +26,7 @@ def validate_walk(walk: VitalXWalk) -> None:
 def validate_sleep(sleep: VitalXSleep) -> None:
     """
     Validation Rules
-    This is mainly making sure that the value isn't 0 by mistake. 
+    This is mainly making sure that the value isn't 0 by mistake.
     """
     if sleep.hours_slept is None:
         raise ValidationError("Hours slept cannot be blank")
