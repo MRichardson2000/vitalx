@@ -7,8 +7,6 @@ from vitalx.service import (
     get_total_days_walked,
     get_total_calories_burnt,
     get_total_miles_walked,
-    get_favourite_walk_location,
-    get_total_days_slept,
     get_latest_streak,
     get_sleep_history,
 )
@@ -93,32 +91,6 @@ def test_fail_get_total_miles_walked(mock_fetch):
     with pytest.raises(DatabaseError) as exc_info:
         get_total_miles_walked()
     assert "Failed to get total miles walked" in str(exc_info.value)
-
-
-def test_get_favourite_walk_location(mock_fetch):
-    mock_fetch.return_value = [{"walk_location": "test"}]
-    result = get_favourite_walk_location()
-    assert result == "test"
-
-
-def test_fail_get_favourite_walk_location(mock_fetch):
-    mock_fetch.return_value = []
-    with pytest.raises(DatabaseError) as exc_info:
-        get_favourite_walk_location()
-    assert "Failed to get favourite walk location" in str(exc_info.value)
-
-
-def test_get_total_days_slept(mock_fetch):
-    mock_fetch.return_value = [{"total_days_slept": 42}]
-    result = get_total_days_slept()
-    assert result == 42
-
-
-def test_fail_get_total_days_slept(mock_fetch):
-    mock_fetch.return_value = []
-    with pytest.raises(DatabaseError) as exc_info:
-        get_total_days_slept()
-    assert "Failed to get total days slept" in str(exc_info.value)
 
 
 def test_get_walk_history(mock_fetch):

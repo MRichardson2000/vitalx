@@ -325,38 +325,8 @@ def get_total_miles_walked(
         raise DatabaseError(f"Failed to get total miles walked due to: {e}")
 
 
-def get_favourite_walk_location(
-    file_path: Path = ANALYTICS_DBO, file_name: str = "get_favourite_walk_location.sql"
-) -> str:
-    """
-    Retrieves the favourite walk location from the database.
-
-    Args:
-
-        file_path is managed in utils - dbo/analytics:
-
-        file_name is get_favourite_walk_location.sql
-
-    Returns:
-
-        str: the favourite walk location
-
-    Raises:
-
-        DatabaseError for any database issues
-    """
-    sql = load_sql_as_text(file_path, file_name)
-    try:
-        rows = fetch_result(sql)
-        logger.debug("Successfully retrieved favourite walk location")
-        return rows[0]["walk_location"]
-    except Exception as e:
-        logger.error("Failed to get favourite walk location: %s", e, exc_info=True)
-        raise DatabaseError(f"Failed to get favourite walk location due to: {e}")
-
-
-def get_total_days_slept(
-    file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_days_slept.sql"
+def get_total_days(
+    file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_days.sql"
 ) -> int:
     """
     Retrieves the total days slept from the database.

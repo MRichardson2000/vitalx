@@ -43,6 +43,7 @@ from src.vitalx.exceptions import DatabaseError
 from src.vitalx.logger import get_logger, setup_logging
 from src.vitalx.quotes import get_random_quote
 from skyrim.skyrim import skyrim_journey
+from src.vitalx.validation import validate_walk, validate_sleep
 
 
 setup_logging()
@@ -91,32 +92,6 @@ def _sleep_history_df():
     df = pd.DataFrame(rows)
     df["todays_date"] = pd.to_datetime(df["todays_date"]).dt.date
     return df
-
-
-def days_active() -> int:
-    """Count the number of distinct days the user has logged activity.
-
-    Combines walk and sleep history dates and returns the count of unique
-    calendar days with at least one entry. Returns 0 when no history exists.
-    """
-    try:
-        walk_rows = get_walk_history()
-        sleep_rows = get_sleep_history()
-    except Exception:
-        return 0
-
-    dates = set()
-    for row in walk_rows:
-        try:
-            dates.add(str(pd.to_datetime(row["todays_date"]).date()))
-        except Exception:
-            continue
-    for row in sleep_rows:
-        try:
-            dates.add(str(pd.to_datetime(row["todays_date"]).date()))
-        except Exception:
-            continue
-    return len(dates)
 
 
 def weekly_steps_chart():
@@ -256,7 +231,7 @@ def sleep_quality_pie():
 
 
 def location_pie():
-    """Build a favourite walk locations pie chart (top 6 locations)."""
+    """Build a favourite walk locations pie chart (top 5 locations excluding work)."""
     df = _walk_history_df()
     fig = go.Figure()
     if df.empty or "walk_location" not in df.columns:
@@ -780,21 +755,6 @@ def submit_walk(n_clicks, location, steps, calories, miles):
     """
     if not n_clicks:
         return "", "", "", "", "", "output-message"
-
-    errors = ["", "", "", ""]
-
-    if not location or not location.strip():
-        errors[0] = "Location cannot be blank"
-    if not steps or int(steps) <= 0:
-        errors[1] = "Steps must be greater than 0"
-    if not calories or int(calories) <= 0:
-        errors[2] = "Calories must be greater than 0"
-    if not miles or float(miles) <= 0:
-        errors[3] = "Miles must be greater than 0"
-
-    if any(errors):
-        return "", *errors, "output-message"
-
     try:
         if did_log_walk_today():
             return (
@@ -812,6 +772,7 @@ def submit_walk(n_clicks, location, steps, calories, miles):
             miles_walked=float(miles),
             walk_location=location.strip(),
         )
+        validate_walk(walk)
         insert_walk(walk)
 
         streak_valid = validate_streak(walk.steps_walked)
@@ -860,17 +821,6 @@ def submit_sleep(n_clicks, hours, minutes, quality):
     """
     if not n_clicks:
         return "", "", "", "output-message"
-
-    errors = ["", ""]
-
-    if not hours or int(hours) < 0:
-        errors[0] = "Hours cannot be blank"
-    if not minutes or int(minutes) < 0:
-        errors[1] = "Minutes cannot be blank"
-
-    if any(errors):
-        return "", *errors, "output-message"
-
     try:
         if did_log_sleep_today():
             return (
@@ -885,10 +835,10 @@ def submit_sleep(n_clicks, hours, minutes, quality):
             minutes_slept=int(minutes),
             good_sleep=bool(quality),
         )
+        validate_sleep(sleep)
         insert_sleep(sleep)
         msg = f"Sleep recorded: {hours}h {minutes}m — {'Good' if quality else 'Bad'} sleep 🌙"
         return msg, "", "", "output-message visible success"
-
     except DatabaseError as e:
         return f"Failed to save sleep: {e}", "", "", "output-message visible error"
 

@@ -4,6 +4,11 @@ A roadmap for evolving VitalX from a personal health dashboard into a solid, mai
 
 ---
 
+## For Cline to solve
+
+- need a visual to show days app has been used - there's a .sql file and function in service layer -
+- need a visual to show total calories burnt - .sql file for it -
+
 ## 1. Data Quality & Schema (Foundation)
 
 These are the highest-impact changes for a data engineer. They protect your data integrity as the project grows.
