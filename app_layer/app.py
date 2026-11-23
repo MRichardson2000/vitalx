@@ -598,8 +598,10 @@ def create_layout():
                     ),
                     # Toast container
                     html.Div(id="toast-container", className="toast-container"),
-                    # Auto-refresh interval
-                    dcc.Interval(id="refresh-interval", interval=30000, n_intervals=0),
+                    # Auto-refresh interval - I don't want it to be 30 seconds at the moment. when I want to put it back change it to 30000
+                    dcc.Interval(
+                        id="refresh-interval", interval=300000000, n_intervals=0
+                    ),
                 ],
             ),
         ],
@@ -675,7 +677,7 @@ def refresh_stats(_):
         stat_card("🍽️", "Total Calories Burnt", f"{total_calories}", "crimson"),
         stat_card("🏞️", "Total Miles Walked", total_miles, "crimson"),
         stat_card(
-            "🌙", "Total Sleep Time", f"{sleep_hours}h {sleep_minutes}m", "green"
+            "🌙", "Total Sleep Time", f"{sleep_hours}h {sleep_minutes}m", "crimson"
         ),
         stat_card("🔥", "Current Streak", f"{streak} days", "crimson", "streak-active"),
         stat_card("🌅", "Total Interaction Days", f"{days} days", "crimson"),
