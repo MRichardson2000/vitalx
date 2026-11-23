@@ -1,4 +1,5 @@
 create table if not exists vitalx_walk (
+    id serial primary key,
     steps_walked integer not null,
     calories_burnt integer not null,
     miles_walked float not null,
