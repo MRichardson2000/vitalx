@@ -37,6 +37,8 @@ from src.vitalx.service import (
     get_walk_history,
     get_sleep_history,
     get_todays_steps,
+    get_total_days,
+    get_total_calories_burnt,
 )
 from src.vitalx.vitalx import VitalXSleep, VitalXWalk
 from src.vitalx.exceptions import DatabaseError
@@ -648,6 +650,10 @@ def refresh_stats(_):
     except Exception:
         total_steps = 0
     try:
+        total_calories = get_total_calories_burnt()
+    except Exception:
+        total_calories = 0
+    try:
         total_miles = get_total_miles_walked()
     except Exception:
         total_miles = "0.0"
@@ -659,12 +665,20 @@ def refresh_stats(_):
         streak = get_latest_streak()
     except Exception:
         streak = 0
+    try:
+        days = get_total_days()
+    except Exception:
+        days = 0
 
     stats = [
-        stat_card("👟", "Total Steps", f"{total_steps:,}", "crimson"),
-        stat_card("🏞️", "Total Miles", total_miles, "crimson"),
-        stat_card("🌙", "Total Sleep", f"{sleep_hours}h {sleep_minutes}m", "green"),
+        stat_card("👟", "Total Steps Walked", f"{total_steps:,}", "crimson"),
+        stat_card("🍽️", "Total Calories Burnt", f"{total_calories}", "crimson"),
+        stat_card("🏞️", "Total Miles Walked", total_miles, "crimson"),
+        stat_card(
+            "🌙", "Total Sleep Time", f"{sleep_hours}h {sleep_minutes}m", "green"
+        ),
         stat_card("🔥", "Current Streak", f"{streak} days", "crimson", "streak-active"),
+        stat_card("🌅", "Total Interaction Days", f"{days} days", "crimson"),
     ]
 
     try:

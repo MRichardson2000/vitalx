@@ -235,36 +235,6 @@ def get_total_sleep_time(
         raise DatabaseError(f"Failed to get total sleep time due to: {e}")
 
 
-def get_total_days_walked(
-    file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_days_walked.sql"
-) -> int:
-    """
-    Retrieves the total days walked from the database.
-
-    Args:
-
-        file_path is managed in utils - dbo/analytics:
-
-        file_name is get_total_days_walked.sql
-
-    Returns:
-
-        int: the total number of days walked
-
-    Raises:
-
-        DatabaseError for any database issues
-    """
-    sql = load_sql_as_text(file_path, file_name)
-    try:
-        rows = fetch_result(sql)
-        logger.debug("Successfully returned total days walked")
-        return rows[0]["total_days_walked"]
-    except Exception as e:
-        logger.error("Failed to get total days walked: %s", e, exc_info=True)
-        raise DatabaseError(f"Failed to get total days walked due to: {e}")
-
-
 def get_total_calories_burnt(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_calories_burnt.sql"
 ) -> int:
@@ -329,17 +299,17 @@ def get_total_days(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_total_days.sql"
 ) -> int:
     """
-    Retrieves the total days slept from the database.
+    Retrieves the total days of data from the database.
 
     Args:
 
         file_path is managed in utils - dbo/analytics:
 
-        file_name is get_total_days_slept.sql
+        file_name is get_total_days.sql
 
     Returns:
 
-        int: the total number of days slept
+        int: the total number of days of entries
 
     Raises:
 
@@ -348,11 +318,11 @@ def get_total_days(
     sql = load_sql_as_text(file_path, file_name)
     try:
         rows = fetch_result(sql)
-        logger.debug("Successfully returned total days slept")
-        return rows[0]["total_days_slept"]
+        logger.debug("Successfully returned total days")
+        return rows[0]["total_days"]
     except Exception as e:
-        logger.error("Failed to get total days slept: %s", e, exc_info=True)
-        raise DatabaseError(f"Failed to get total days slept due to: {e}")
+        logger.error("Failed to get total days: %s", e, exc_info=True)
+        raise DatabaseError(f"Failed to get total days due to: {e}")
 
 
 ######################################################################
@@ -758,3 +728,11 @@ def did_log_sleep_today(
     except Exception as e:
         logger.error("Failed to check daily sleep status: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to check daily sleep status due to: {e}")
+
+
+def main():
+    print(get_total_days())
+
+
+if __name__ == "__main__":
+    main()

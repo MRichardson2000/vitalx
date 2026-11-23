@@ -4,11 +4,11 @@ from vitalx.service import (
     get_walk_history,
     get_last_walk_date,
     get_latest_streak_entry,
-    get_total_days_walked,
     get_total_calories_burnt,
     get_total_miles_walked,
     get_latest_streak,
     get_sleep_history,
+    get_total_days,
 )
 from vitalx.exceptions import DatabaseError
 from datetime import datetime
@@ -54,17 +54,17 @@ def test_fail_get_total_sleep(mock_fetch):
     assert "Failed to get total sleep time" in str(exc_info.value)
 
 
-def test_get_total_days_walked(mock_fetch):
-    mock_fetch.return_value = [{"total_days_walked": 43}]
-    result = get_total_days_walked()
+def test_get_total_days(mock_fetch):
+    mock_fetch.return_value = [{"total_days": 43}]
+    result = get_total_days()
     assert result == 43
 
 
-def test_fail_get_total_days_walked(mock_fetch):
+def test_fail_get_total_days(mock_fetch):
     mock_fetch.return_value = []
     with pytest.raises(DatabaseError) as exc_info:
-        get_total_days_walked()
-    assert "Failed to get total days walked" in str(exc_info.value)
+        get_total_days()
+    assert "Failed to get total days" in str(exc_info.value)
 
 
 def test_get_total_calories_burnt(mock_fetch):

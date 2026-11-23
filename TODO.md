@@ -4,24 +4,19 @@ A roadmap for evolving VitalX from a personal health dashboard into a solid, mai
 
 ---
 
-## For Cline to solve
-
-- need a visual to show days app has been used - there's a .sql file and function in service layer -
-- need a visual to show total calories burnt - .sql file for it -
-
 ## 1. Data Quality & Schema (Foundation)
 
 These are the highest-impact changes for a data engineer. They protect your data integrity as the project grows.
-
+DONE
 ### Add Primary Keys & Constraints
 - [ ] Add a surrogate `id SERIAL PRIMARY KEY` to `vitalx_walk`, `vitalx_sleep`, and `vitalx_streak` tables (the `weather` table already has this pattern).
 - [ ] Add `UNIQUE (todays_date)` constraint on `vitalx_walk` and `vitalx_sleep` to prevent duplicate same-day entries at the database level (currently only enforced in application logic).
 - [ ] Add `NOT NULL` constraints where missing and `CHECK` constraints for business rules (e.g., `steps_walked > 0`, `hours_slept >= 0`).
-
+DONE
 ### Fix Count Logic
 - [ ] `get_total_days_walked()` currently does `count(*)` which counts rows, not distinct dates. If duplicates ever slip through, this will overcount. Change to `count(distinct todays_date::date)`.
 - [ ] `get_total_days_slept()` has the same issue — use `count(distinct todays_date::date)`.
-
+DONE
 ### Centralise "Days Active" Logic
 - [ ] The new `days_active()` function in `app_layer/app.py` duplicates walk/sleep date aggregation logic that belongs in the service layer. Move it into `src/vitalx/service.py` as `get_days_active()` with its own SQL file in `dbo/analytics/`, then call it from the frontend.
 
