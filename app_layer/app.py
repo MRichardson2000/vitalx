@@ -93,6 +93,32 @@ def _sleep_history_df():
     return df
 
 
+def days_active() -> int:
+    """Count the number of distinct days the user has logged activity.
+
+    Combines walk and sleep history dates and returns the count of unique
+    calendar days with at least one entry. Returns 0 when no history exists.
+    """
+    try:
+        walk_rows = get_walk_history()
+        sleep_rows = get_sleep_history()
+    except Exception:
+        return 0
+
+    dates = set()
+    for row in walk_rows:
+        try:
+            dates.add(str(pd.to_datetime(row["todays_date"]).date()))
+        except Exception:
+            continue
+    for row in sleep_rows:
+        try:
+            dates.add(str(pd.to_datetime(row["todays_date"]).date()))
+        except Exception:
+            continue
+    return len(dates)
+
+
 def weekly_steps_chart():
     """Build a 7-day steps line chart from walk history."""
     df = _walk_history_df()
@@ -664,6 +690,7 @@ def refresh_stats(_):
         stat_card("🏞️", "Total Miles", total_miles, "crimson"),
         stat_card("🌙", "Total Sleep", f"{sleep_hours}h {sleep_minutes}m", "green"),
         stat_card("🔥", "Current Streak", f"{streak} days", "crimson", "streak-active"),
+        stat_card("📅", "Days Active", f"{days_active()}", "amber"),
     ]
 
     try:
