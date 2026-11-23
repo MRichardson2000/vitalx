@@ -50,10 +50,12 @@ def load_state() -> dict[str, Any]:
         Creates a new `state.json` file on disk if one does not already exist.
     """
     if STATE_FILE.exists():
+        # if the state file already exists (which it should) it tries opening it and returning it.
         try:
             with open(STATE_FILE, "r") as f:
                 return json.load(f)
         except json.JSONDecodeError:
+            # Otherwise it will pass on the exception and a default state is set
             pass
     default_state = {
         "id_count": 0,
@@ -62,6 +64,7 @@ def load_state() -> dict[str, Any]:
         "last_todays_steps": 0,
         "loop_times": 0,
     }
+    # Then it uses the save state function below to save the default state to the json file if there is no state file.
     save_state(default_state)
     return default_state
 
@@ -96,14 +99,18 @@ def skyrim_journey(
     Side Effects:
         Updates and saves the application state to disk via `save_state()`.
     """
+    # current state is loaded from the state file
     state = load_state()
     today = datetime.now().date().isoformat()
+    # current steps is the steps in the state file
     current_steps = state["steps"]
+    # the current id is the remainder of id_count / 9. The cycle will operate smoothly between 0 to 8
     current_id = state["id_count"] % len(locations)
     loop_times = state["loop_times"]
     last_checked_date = state["last_checked_date"]
     last_todays_steps = state["last_todays_steps"] or 0
     latest_db_steps = max(0, get_todays_steps())
+    # if last checked data is not equal to today then new_steps becomes latest_db_steps
     if last_checked_date != today:
         new_steps = latest_db_steps
     else:

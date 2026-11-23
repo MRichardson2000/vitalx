@@ -578,10 +578,10 @@ def get_latest_streak_entry(
         logger.debug("Successfully retrieved latest streak")
         raw_date = rows[0]["todays_date"]
         if isinstance(raw_date, datetime):
-            d = raw_date.date()
+            _date = raw_date.date()
         else:
-            d = datetime.fromisoformat(str(raw_date)).date()
-        return rows[0]["streak"], d
+            _date = datetime.fromisoformat(str(raw_date)).date()
+        return rows[0]["streak"], _date
     except Exception as e:
         logger.error("Failed to get latest streak due to: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to get latest streak due to: {e}")
