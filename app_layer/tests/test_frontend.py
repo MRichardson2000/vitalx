@@ -1,5 +1,12 @@
 """Front-end tests for VitalX Gothic Dashboard (app_layer/)."""
 
+import sys
+from pathlib import Path
+
+sys.path.insert(
+    0, str(Path(__file__).parent.parent.parent)
+)  # project root: makes app_layer importable
+
 from unittest.mock import patch
 from datetime import datetime
 

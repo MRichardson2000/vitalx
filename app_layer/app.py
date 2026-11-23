@@ -267,8 +267,8 @@ def location_pie():
             font_color=OFF_WHITE,
         )
         return fig
-
-    loc_counts = df["walk_location"].value_counts().head(6)
+    df = df.loc[(df.walk_location != "Work")]
+    loc_counts = df["walk_location"].value_counts().head(5)
     fig.add_trace(
         go.Pie(
             labels=loc_counts.index.tolist(),
@@ -290,7 +290,7 @@ def location_pie():
         )
     )
     fig.update_layout(
-        title="Favourite Walk Locations",
+        title="Favourite Walk Locations - Excluding Work 😁",
         paper_bgcolor=CHARCOAL,
         plot_bgcolor=CHARCOAL,
         font_color=OFF_WHITE,
@@ -690,7 +690,6 @@ def refresh_stats(_):
         stat_card("🏞️", "Total Miles", total_miles, "crimson"),
         stat_card("🌙", "Total Sleep", f"{sleep_hours}h {sleep_minutes}m", "green"),
         stat_card("🔥", "Current Streak", f"{streak} days", "crimson", "streak-active"),
-        stat_card("📅", "Days Active", f"{days_active()}", "amber"),
     ]
 
     try:
