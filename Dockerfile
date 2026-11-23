@@ -17,4 +17,6 @@ RUN uv sync --frozen
 
 EXPOSE 8050
 
-CMD ["uv", "run", "python", "app.py"]
+ENV PYTHONPATH=/app
+
+CMD ["uv", "run", "python", "-m", "app_layer.app"]

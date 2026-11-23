@@ -58,9 +58,9 @@ docker exec -it vitalx_db psql -U postgres -c "DROP DATABASE vitalx;"
 docker exec -it vitalx_db psql -U postgres -c "CREATE DATABASE vitalx;"
 docker exec -it vitalx_app uv run python -c "from vitalx.dbutils import create_schemas; create_schemas()"
 run the below on linux (Change the date in the file name to today):
-gunzip < backups/vitalx_backup_2026-08-28.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
+gunzip < backups/vitalx_backup_2026-11-17.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
 run the below on mac (Change the date in the file name to today):
-docker exec -i vitalx_db psql -U postgres -d vitalx < backups/vitalx_backup_2026-10-05.sql.gz
+gunzip < backups/vitalx_backup_2026-11-17.sql.gz | docker exec -i vitalx_db psql -U postgres -d vitalx
 
 Then verify with the below command
 docker exec -it vitalx_db psql -U postgres -d vitalx -c "
