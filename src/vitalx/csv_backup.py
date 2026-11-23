@@ -53,8 +53,10 @@ def import_spreadsheets_to_database() -> None:
                     raise ValueError(
                         "The dataframe is empty, check the contents of the csv"
                     )
+                if "id" in df.columns:
+                    df = df.drop(columns=["id"])
                 with engine.begin() as conn:
-                    df.to_sql(table_name, conn, if_exists="replace", index=False)
+                    df.to_sql(table_name, conn, if_exists="append", index=False)
                 logger.info(
                     "Successfully imported %d rows into table: %s", len(df), table_name
                 )
