@@ -886,15 +886,7 @@ def submit_sleep(n_clicks, hours, minutes, quality):
             good_sleep=bool(quality),
         )
         insert_sleep(sleep)
-
         msg = f"Sleep recorded: {hours}h {minutes}m — {'Good' if quality else 'Bad'} sleep 🌙"
-
-        try:
-            export_tables_to_spreadsheets()
-            perform_daily_pg_backup()
-        except Exception as backup_err:
-            logger.error("Backup/export failed: %s", backup_err)
-
         return msg, "", "", "output-message visible success"
 
     except DatabaseError as e:
