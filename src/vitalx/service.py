@@ -423,38 +423,6 @@ def get_todays_steps(
         raise DatabaseError(f"Failed to get ltodays step count due to: {e}")
 
 
-def did_walk_today(
-    file_path: Path = ANALYTICS_DBO, file_name: str = "get_walk_day_is_today.sql"
-) -> bool:
-    """
-    Checks the database to see if you walked today and returns a bool
-
-    Args:
-
-        file_path is managed in utils - dbo/analytics:
-
-        file_name is get_walk_day_is_today.sql
-
-    Returns:
-
-        bool: true if walked today else false
-
-    Raises:
-
-        DatabaseError for any database issues
-    """
-    sql = load_sql_as_text(file_path, file_name)
-    try:
-        rows = fetch_result(sql)
-        logger.debug("successfully confirmed that user walked today")
-        if len(rows) > 0:
-            return True
-        return False
-    except Exception as e:
-        logger.error("Failed to confirm if user walked today: %s", e, exc_info=True)
-        raise DatabaseError(f"Failed to confirm if user walked today due to: {e}")
-
-
 def did_log_walk_today(
     file_path: Path = ANALYTICS_DBO, file_name: str = "get_daily_walk_status.sql"
 ) -> bool:
@@ -728,11 +696,3 @@ def did_log_sleep_today(
     except Exception as e:
         logger.error("Failed to check daily sleep status: %s", e, exc_info=True)
         raise DatabaseError(f"Failed to check daily sleep status due to: {e}")
-
-
-def main():
-    print(get_total_days())
-
-
-if __name__ == "__main__":
-    main()

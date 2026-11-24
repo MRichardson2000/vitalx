@@ -6,14 +6,14 @@
 
 ## Responsibilities
 1. **Functionality & UI:** Build, style, and maintain the user interface and application layer inside this folder. Make it functional, responsive, and clean.
-2. **Testing:** You must write and maintain unit/integration tests for all front-end components and code you write. Ensure tests pass before finalizing changes. 
+2. **Testing:** You must write and maintain unit/integration tests for all front-end components and code you write. Ensure tests pass before finalizing changes. Make sure you design your tests to make sure that your implementations work now whilst keeping in mind how future changes could impact this product. Some tests can make sure future changes notify you if it's broken something. 
 3. **Integration:** Communicate with the backend via clearly defined APIs or endpoints provided by the service layer, but do not alter the backend code. If you need something adding tell me and I will implement it.
 
 ## Workflow Rules
 - Check the makefile in the root folder before running commands as there may be simple make commands for you to use
 - Always check existing files in this folder before writing new ones to maintain consistency.
 - Ensure you're following best practices in line with ruff and ty standards. 
-- Do not clutter the code, do not add green hashtag comments everywhere. 
+- Do not clutter the code this is a production environment, treat it like one. 
 - Make sure you're not leaving in unused imports
 - tidy up your code after every run. Anything not in use remove it.
 - Make sure there are no type hint errors. 
