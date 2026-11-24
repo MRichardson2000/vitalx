@@ -95,7 +95,7 @@ h3 { font-size: 1.25rem; color: var(--vx-text-muted); }
 }
 .stat-card::before {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--vx-primary), var(--vx-secondary));
+  background: linear-gradient(90deg, var(--vx-primary), var(--vx-primary-glow));
   opacity: 0; transition: opacity var(--vx-transition);
 }
 .stat-card:hover { border-color: var(--vx-primary); transform: translateY(-4px); box-shadow: var(--vx-shadow-hover); }

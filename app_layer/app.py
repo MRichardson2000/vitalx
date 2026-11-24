@@ -41,7 +41,7 @@ from src.vitalx.service import (
     get_total_calories_burnt,
 )
 from src.vitalx.vitalx import VitalXSleep, VitalXWalk
-from src.vitalx.exceptions import DatabaseError
+from vitalx.exceptions import DatabaseError, ValidationError
 from src.vitalx.logger import get_logger, setup_logging
 from src.vitalx.quotes import get_random_quote
 from skyrim.skyrim import skyrim_journey
@@ -87,8 +87,14 @@ def _sleep_history_df():
     """Load sleep history into a DataFrame indexed by date.
 
     Returns an empty DataFrame with the expected columns when no rows exist.
+    If the service layer raises an error, logs it and returns an empty
+    DataFrame so the charts degrade gracefully instead of crashing.
     """
-    rows = get_sleep_history()
+    try:
+        rows = get_sleep_history()
+    except Exception as e:
+        logger.error("Failed to load sleep history: %s", e, exc_info=True)
+        return pd.DataFrame(columns=["todays_date", "hours_slept", "good_sleep"])
     if not rows:
         return pd.DataFrame(columns=["todays_date", "hours_slept", "good_sleep"])
     df = pd.DataFrame(rows)
@@ -598,10 +604,8 @@ def create_layout():
                     ),
                     # Toast container
                     html.Div(id="toast-container", className="toast-container"),
-                    # Auto-refresh interval - I don't want it to be 30 seconds at the moment. when I want to put it back change it to 30000
-                    dcc.Interval(
-                        id="refresh-interval", interval=300000000, n_intervals=0
-                    ),
+                    # Auto-refresh interval
+                    dcc.Interval(id="refresh-interval", interval=30000, n_intervals=0),
                 ],
             ),
         ],
@@ -714,6 +718,15 @@ def refresh_stats(_):
     except Exception:
         fatigue = None
 
+    # Determine whether any sleep data exists at all, so we can tell the
+    # difference between "no sleep data has ever been logged" and "sleep data
+    # exists but the fatigue check failed (e.g. missing backend SQL file)."
+    has_sleep_data = False
+    try:
+        has_sleep_data = len(get_sleep_history()) > 0
+    except Exception:
+        has_sleep_data = False
+
     if walked_today:
         walk_status = f"Logged Today — {todays_steps:,} steps"
         walk_detail = f"{todays_steps:,} steps"
@@ -722,12 +735,9 @@ def refresh_stats(_):
         walk_detail = f"Yesterday's Steps: {yesterdays_steps:,}"
     walk_badge = "logged" if walked_today else "pending"
 
-    try:
-        sleep_h, sleep_m = get_total_sleep_time()
-    except Exception:
-        sleep_h, sleep_m = 0, 0
-
-    sleep_status = f"{sleep_h}h {sleep_m}m total" if slept_today else "Not Logged Yet"
+    sleep_status = (
+        f"{sleep_hours}h {sleep_minutes}m total" if slept_today else "Not Logged Yet"
+    )
     sleep_badge = "logged" if slept_today else "pending"
 
     if fatigue is True:
@@ -736,6 +746,9 @@ def refresh_stats(_):
     elif fatigue is False:
         fatigue_text = "Warning! Fatigued! 😞"
         fatigue_class = "amber"
+    elif has_sleep_data:
+        fatigue_text = "Unable to check sleep quality"
+        fatigue_class = ""
     else:
         fatigue_text = "No sleep data"
         fatigue_class = ""
@@ -786,7 +799,7 @@ def submit_walk(n_clicks, location, steps, calories, miles):
             steps_walked=int(steps),
             calories_burnt=int(calories),
             miles_walked=float(miles),
-            walk_location=location.strip(),
+            walk_location=(location or "").strip(),
         )
         validate_walk(walk)
         insert_walk(walk)
@@ -806,9 +819,28 @@ def submit_walk(n_clicks, location, steps, calories, miles):
 
         return msg, "", "", "", "", "output-message visible success"
 
+    except (ValidationError, ValueError, TypeError) as e:
+        return (
+            f"Invalid input: {e}",
+            "",
+            "",
+            "",
+            "",
+            "output-message visible error",
+        )
     except DatabaseError as e:
         return (
             f"Failed to save walk: {e}",
+            "",
+            "",
+            "",
+            "",
+            "output-message visible error",
+        )
+    except Exception as e:  # pragma: no cover - safety net for unexpected errors
+        logger.error("Unexpected error saving walk: %s", e, exc_info=True)
+        return (
+            "Something went wrong saving your walk.",
             "",
             "",
             "",
@@ -855,8 +887,18 @@ def submit_sleep(n_clicks, hours, minutes, quality):
         insert_sleep(sleep)
         msg = f"Sleep recorded: {hours}h {minutes}m — {'Good' if quality else 'Bad'} sleep 🌙"
         return msg, "", "", "output-message visible success"
+    except (ValidationError, ValueError, TypeError) as e:
+        return f"Invalid input: {e}", "", "", "output-message visible error"
     except DatabaseError as e:
         return f"Failed to save sleep: {e}", "", "", "output-message visible error"
+    except Exception as e:  # pragma: no cover - safety net for unexpected errors
+        logger.error("Unexpected error saving sleep: %s", e, exc_info=True)
+        return (
+            "Something went wrong saving your sleep.",
+            "",
+            "",
+            "output-message visible error",
+        )
 
 
 @app.callback(
