@@ -1,0 +1,1 @@
+select table_name from information_schema.tables where table_type = 'base_table' and table_schema not in ('pg_catalog', 'information_schema') order by table_name;"
